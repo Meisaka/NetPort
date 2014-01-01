@@ -11,9 +11,11 @@ namespace network {
 		~TCPConnection(void);
 
 		bool Bind(const NetworkAddress &);
+		bool Connect(const NetworkAddress &);
 		bool Listen(int);
 		void Close();
 		bool SetNoDelay(bool enable);
+		bool SetNonBlocking();
 		bool Accept(TCPConnection *);
 		bool Select(bool rd, bool wr, bool er);
 		bool Select(bool rd, bool wr, bool er, long sec, long microsec);

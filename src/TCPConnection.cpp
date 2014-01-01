@@ -28,6 +28,15 @@ namespace network {
 		}
 		return true;
 	}
+	bool TCPConnection::SetNonBlocking()
+	{
+		unsigned long i = 1;
+#ifdef WIN32
+		return ioctlsocket(handle, FIONBIO, &i);
+#else
+		return 0;
+#endif
+	}
 
 	bool TCPConnection::Select(bool rd, bool wr, bool er)
 	{
@@ -139,6 +148,21 @@ namespace network {
 			return false;
 		}
 		laddr = local;
+		bound = true;
+		return true;
+	}
+	bool TCPConnection::Connect(const NetworkAddress &remote)
+	{
+		if(!handle) { return false; }
+		long v = 1;
+		if(setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(long))) {
+			return false;
+		}
+		if(connect(handle, (struct sockaddr*)&remote.addr, remote.Length())) {
+			return false;
+		}
+		raddr = remote;
+		state = SCS_CONNECTED;
 		bound = true;
 		return true;
 	}

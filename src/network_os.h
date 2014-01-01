@@ -1,0 +1,35 @@
+#pragma once
+#ifndef INCL_NETWORKOS
+#define INCL_NETWORKOS
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+#include <map>
+#include <cstdlib>
+
+#ifdef WIN32
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <inaddr.h>
+#include <in6addr.h>
+#define SHUT_RDWR SD_BOTH
+typedef int socklen_t;
+#pragma comment(lib, "ws2_32.lib")
+#undef SetPort
+#else
+#include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/ip.h>
+#include <netinet/ip6.h>
+#include <netinet/tcp.h>
+typedef unsigned int socklen_t;
+#define INVALID_SOCKET (-1)
+#endif
+
+#endif
+

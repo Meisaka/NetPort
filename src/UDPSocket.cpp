@@ -70,7 +70,7 @@ namespace network {
 	int UDPSocket::RecvFrom(NetworkAddress & r, char * b, size_t l) {
 		if(!handle) { return -1; }
 		r.af = this->af;
-		int x = r.Length();
+		socklen_t x = r.Length();
 		int i = recvfrom(handle, b, l, 0, (struct sockaddr*)&r.addr, &x);
 		if(i < 0) {
 #ifdef WIN32
@@ -86,7 +86,7 @@ namespace network {
 	int UDPSocket::RecvFrom(NetworkAddress & r, std::string & s) {
 		if(!handle) { return -1; }
 		r.af = this->af;
-		int x = r.Length();
+		socklen_t x = r.Length();
 		char f[2000]; // MTU of most networks is limited to 1500, so this should be enough space ;)
 		int i = recvfrom(handle, f, 2000, 0, (struct sockaddr*)&r.addr, &x);
 		if(i > 0) {

@@ -30,7 +30,9 @@ namespace network {
 		INetworkStream() {}
 		virtual ~INetworkStream() {}
 		virtual int Send(const char *, int) = 0;
+		virtual int Send(const std::string &) = 0;
 		virtual int Recv(char *, int) = 0;
+		virtual int Recv(std::string &, int) = 0;
 	};
 
 	struct NetworkAddress {
@@ -41,6 +43,7 @@ namespace network {
 		void IP4(const char *);
 		void IP4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4);
 		void IP4(unsigned long i);
+		void IP6(const char *);
 		std::string ToString() const;
 		int Length() const;
 	};

@@ -7,7 +7,7 @@ namespace network {
 	public:
 		TCPConnection(void);
 		TCPConnection(int,int);
-		void Init(ADDRTYPE af);
+		bool Init(ADDRTYPE);
 		~TCPConnection(void);
 
 		bool Bind(const NetworkAddress &);
@@ -19,8 +19,10 @@ namespace network {
 		bool Accept(TCPConnection *);
 		bool Select(bool rd, bool wr, bool er);
 		bool Select(bool rd, bool wr, bool er, long sec, long microsec);
-		virtual int Send(const char *, int);
-		virtual int Recv(char *, int);
+		int Send(const char *, int);
+		int Send(const std::string &);
+		int Recv(char *, int);
+		int Recv(std::string &, int);
 		bool IsConnected();
 		bool IsListening();
 		const NetworkAddress& GetRemote() { return raddr; }

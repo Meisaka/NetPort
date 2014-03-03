@@ -108,6 +108,7 @@ namespace network {
 				ipev = 0;
 			}
 		}
+		if(sect < 4) aa[sect] = ipev;
 		((struct sockaddr_in*)&addr)->sin_addr = ra4;
 	}
 	void NetworkAddress::IP4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4)

@@ -30,12 +30,14 @@ namespace network {
 	}
 	bool TCPConnection::SetNonBlocking()
 	{
-		unsigned long i = 1;
-#ifdef WIN32
-		return ioctlsocket(handle, FIONBIO, &i);
-#else
-		return 0;
-#endif
+		unsigned long iMode = 1;
+		if(!handle) { return false; }
+	#ifdef WIN32
+		ioctlsocket(handle, FIONBIO, &iMode);
+	#else
+		ioctl(handle, FIONBIO, &iMode);
+	#endif
+		return true;
 	}
 
 	bool TCPConnection::Select(bool rd, bool wr, bool er)
@@ -62,6 +64,17 @@ namespace network {
 		}
 		return i;
 	}
+	int TCPConnection::Send(const std::string &s)
+	{
+		int i;
+		if(!handle) { return -1; }
+		if(state != SCS_CONNECTED) { return -1; }
+		i = send(handle, s.data(), s.length(), 0);
+		if(i < 0) {
+			TCPConnection::Close();
+		}
+		return i;
+	}
 	int TCPConnection::Recv(char * buf, int buflen)
 	{
 		int i;
@@ -69,13 +82,29 @@ namespace network {
 		if(state != SCS_CONNECTED) { return -1; }
 		i = recv(handle, buf, buflen, 0);
 		if(i <= 0) {
+#ifdef WIN32
+			if(WSAGetLastError() == WSAEWOULDBLOCK) {
+#else
 			if(errno == EAGAIN || errno == EWOULDBLOCK) {
+#endif
 				return 0;
 			}
 			TCPConnection::Close();
 		}
 		return i;
 	}
+	int TCPConnection::Recv(std::string &s, int buflen)
+	{
+		if(!handle) { return -1; }
+		char *h = new char[buflen];
+		int i = Recv(h, buflen);
+		if(i > 0) {
+			s.assign(h, i);
+		}
+		delete h;
+		return i;
+	}
+
 	bool TCPConnection::IsConnected()
 	{
 		return (state == SCS_CONNECTED);
@@ -118,23 +147,21 @@ namespace network {
 		return true;
 	}
 
-	void TCPConnection::Init(ADDRTYPE afn)
+	bool TCPConnection::Init(ADDRTYPE afn)
 	{
-		if(handle) { return; }
-		this->af = af;
+		if(handle) {
+			Close();
+		}
+		this->af = afn;
 		int sc;
 		sc = socket(afn, SOCK_STREAM, IPPROTO_TCP);
 		if(INVALID_SOCKET == sc) {
-			return;
+			return false;
 		}
-		unsigned long iMode = 1;
-	#ifdef WIN32
-		ioctlsocket(sc, FIONBIO, &iMode);
-	#else
-		ioctl(sc, FIONBIO, &iMode);
-	#endif
+
 		handle = sc;
 		state = SCS_CLOSED;
+		return true;
 	}
 
 	bool TCPConnection::Bind(const NetworkAddress &local)
@@ -196,15 +223,6 @@ namespace network {
 
 	TCPConnection::~TCPConnection(void)
 	{
-		if(handle) {
-			if(state) {
-				shutdown(handle, SHUT_RDWR);
-			}
-	#ifdef WIN32
-			closesocket(handle);
-	#else
-			close(handle);
-	#endif
-		}
+		Close();
 	}
 }

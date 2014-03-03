@@ -4,6 +4,7 @@
 
 #include "network_common.h"
 #include "TCPConnection.h"
+#include "UDPSocket.hpp"
 
 namespace network {
 	void Initialize();

@@ -28,14 +28,41 @@ namespace network {
 		}
 		return true;
 	}
-	bool TCPConnection::SetNonBlocking()
+
+	bool TCPConnection::SetKeepAlive(unsigned long time, unsigned long intvl, unsigned long probes)
 	{
-		unsigned long iMode = 1;
+		unsigned long i = (enable ? 1 : 0);
+		if(!handle) { return false; }
+		if(setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, (char*)&i, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPIDLE, &time, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPCNT, &probes, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPINTVL, &intvl, sizeof(unsigned long))) {
+			return false;
+		}
+		return true;
+	}
+
+	bool TCPConnection::SetNonBlocking(bool enable)
+	{
 		if(!handle) { return false; }
 	#ifdef WIN32
+		unsigned long iMode = (enable ? 1 : 0);
 		ioctlsocket(handle, FIONBIO, &iMode);
 	#else
-		ioctl(handle, FIONBIO, &iMode);
+		int flags = fcntl(handle, F_GETFL, 0);
+		if (enable) {
+			flags |= O_NONBLOCK;
+		}
+		else {
+			flags ^= O_NONBLOCK;
+		}
+		fcntl(handle, F_SETFL, flags);
 	#endif
 		return true;
 	}
@@ -225,6 +252,6 @@ namespace network {
 
 	TCPConnection::~TCPConnection(void)
 	{
-		Close();
+//		Close();
 	}
 }

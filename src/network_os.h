@@ -23,6 +23,7 @@ typedef int socklen_t;
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>

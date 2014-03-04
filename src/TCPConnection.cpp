@@ -132,18 +132,20 @@ namespace network {
 
 	bool TCPConnection::Accept(TCPConnection * that)
 	{
-		if(that->state != SCS_LISTEN) { return false; }
+		if(this->state != SCS_LISTEN) { return false; }
+		if(!that) { return false; }
 		int h;
 		socklen_t sas = sizeof(sockaddr);
-		this->laddr = that->laddr;
-		this->raddr.af = that->laddr.af;
-		h = accept(that->handle, (struct sockaddr*)&this->raddr.addr, &sas);
+		h = accept(this->handle, (struct sockaddr*)&that->raddr.addr, &sas);
 		if(h == INVALID_SOCKET) {
 			return false;
 		}
-		this->handle = h;
-		this->state = SCS_CONNECTED;
-		this->bound = true;
+		that->laddr = this->laddr;
+		that->raddr.af = this->laddr.af;
+		that->af = this->af;
+		that->handle = h;
+		that->state = SCS_CONNECTED;
+		that->bound = true;
 		return true;
 	}
 

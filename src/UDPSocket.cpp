@@ -80,6 +80,11 @@ namespace network {
 #endif
 				return 0;
 			}
+#ifdef WIN32
+			if(WSAGetLastError() == WSAEMSGSIZE) {
+				return l;
+			}
+#endif
 		}
 		return i;
 	}
@@ -99,6 +104,11 @@ namespace network {
 #endif
 				return 0;
 			}
+#ifdef WIN32
+			if(WSAGetLastError() == WSAEMSGSIZE) {
+				return 2000;
+			}
+#endif
 		}
 		return i;
 	}

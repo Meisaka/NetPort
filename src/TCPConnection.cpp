@@ -28,6 +28,26 @@ namespace network {
 		}
 		return true;
 	}
+
+	bool TCPConnection::SetKeepAlive(unsigned long time, unsigned long intvl, unsigned long probes)
+	{
+		unsigned long i = (enable ? 1 : 0);
+		if(!handle) { return false; }
+		if(setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, (char*)&i, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPIDLE, &time, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPCNT, &probes, sizeof(unsigned long))) {
+			return false;
+		}
+		if(setsockopt(mySocket, SOL_TCP, TCP_KEEPINTVL, &intvl, sizeof(unsigned long))) {
+			return false;
+		}
+		return true;
+	}
+
 	bool TCPConnection::SetNonBlocking()
 	{
 		unsigned long iMode = 1;

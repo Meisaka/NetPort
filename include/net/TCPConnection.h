@@ -14,6 +14,7 @@ namespace network {
 		bool Connect(const NetworkAddress &);
 		bool Listen(int);
 		void Close();
+		bool TCPConnection::SetKeepAlive(unsigned long time, unsigned long intvl, unsigned long probes);
 		bool SetNoDelay(bool enable);
 		bool SetNonBlocking();
 		bool Accept(TCPConnection *);

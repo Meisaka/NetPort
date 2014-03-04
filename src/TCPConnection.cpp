@@ -252,6 +252,6 @@ namespace network {
 
 	TCPConnection::~TCPConnection(void)
 	{
-		Close();
+//		Close();
 	}
 }

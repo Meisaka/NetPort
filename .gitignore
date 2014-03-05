@@ -1,0 +1,10 @@
+CMakeFiles
+CMakeCache.txt
+*~
+*.swp
+src/config.h
+build
+cmake_install.cmake
+Makefile
+lib
+

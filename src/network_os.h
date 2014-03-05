@@ -24,6 +24,7 @@ typedef int socklen_t;
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/ip.h>
 #include <netinet/ip6.h>

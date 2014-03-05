@@ -14,6 +14,7 @@
 #include <WS2tcpip.h>
 #include <inaddr.h>
 #include <in6addr.h>
+#include <mstcpip.h>
 #define SHUT_RDWR SD_BOTH
 typedef int socklen_t;
 #pragma comment(lib, "ws2_32.lib")

@@ -30,6 +30,16 @@ namespace network {
 		return true;
 	}
 
+	bool TCPConnection::SetKeepAlive(bool enable)
+	{
+		unsigned long i = (enable ? 1 : 0);
+		if(!handle) { return false; }
+		if(setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, (char*)&i, sizeof(unsigned long))) {
+			return false;
+		}
+		return true;
+	}
+
 	bool TCPConnection::SetKeepAlive(bool enable, unsigned long time, unsigned long intvl, unsigned long probes)
 	{
 		unsigned long i = (enable ? 1 : 0);
@@ -37,6 +47,19 @@ namespace network {
 		if(setsockopt(handle, SOL_SOCKET, SO_KEEPALIVE, (char*)&i, sizeof(unsigned long))) {
 			return false;
 		}
+#ifdef WIN32
+		tcp_keepalive tcpka_set;
+		tcpka_set.onoff = i;
+		// these values are expected in milliseconds
+		tcpka_set.keepaliveinterval = intvl * 1000;
+		tcpka_set.keepalivetime = time * 1000;
+		// probes is not settable on Windows
+
+		if(WSAIoctl(handle, SIO_KEEPALIVE_VALS, &tcpka_set, sizeof(tcp_keepalive), 0, 0, 0, 0, 0)) {
+			return false;
+		}
+#else
+		// These options may be Linux specific
 		if(setsockopt(handle, SOL_TCP, TCP_KEEPIDLE, &time, sizeof(unsigned long))) {
 			return false;
 		}
@@ -46,6 +69,7 @@ namespace network {
 		if(setsockopt(handle, SOL_TCP, TCP_KEEPINTVL, &intvl, sizeof(unsigned long))) {
 			return false;
 		}
+#endif
 		return true;
 	}
 

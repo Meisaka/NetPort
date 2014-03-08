@@ -5,9 +5,11 @@
 namespace network {
 	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED), handle(0), af(0) {}
 
-	TCPConnection::TCPConnection(int hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(int hndl, int afn, CONNECTIONSTATE s) : bound(false), state(s), handle(hndl), af(afn)
 	{
+#ifdef WIN32
 		TCPConnection::CheckState();
+#endif
 	}
 
 	void TCPConnection::CheckState()

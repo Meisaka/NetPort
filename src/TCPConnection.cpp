@@ -10,14 +10,22 @@ namespace network {
 		TCPConnection::CheckState();
 	}
 
+	TCPConnection::TCPConnection(int hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
+	{
+		TCPConnection::CheckState();
+	}
+
 	void TCPConnection::CheckState()
 	{
 		if(!handle) { return; }
+#ifdef WIN32
 		unsigned long i;
 		socklen_t l = sizeof(unsigned long);
 		if(!getsockopt(handle, SOL_SOCKET, 0x00700c, (char*)&i, &l)) {
 			state = SCS_CONNECTED;
 		}
+#else
+#endif
 	}
 
 	bool TCPConnection::SetNoDelay(bool enable)

@@ -7,6 +7,7 @@ namespace network {
 	public:
 		TCPConnection(void);
 		TCPConnection(int,int);
+		TCPConnection(int,int,CONNECTIONSTATE);
 		bool Init(ADDRTYPE);
 		~TCPConnection(void);
 

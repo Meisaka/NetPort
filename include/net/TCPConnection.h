@@ -6,7 +6,7 @@ namespace network {
 	class TCPConnection : public INetworkStream {
 	public:
 		TCPConnection(void);
-		TCPConnection(int,int);
+		TCPConnection(int,int, CONNECTIONSTATE = SCS_CLOSED);
 		bool Init(ADDRTYPE);
 		~TCPConnection(void);
 

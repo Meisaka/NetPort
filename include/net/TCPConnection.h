@@ -40,6 +40,7 @@ namespace network {
 		bool IsConnected();
 		bool IsListening();
 		const NetworkAddress& GetRemote() { return raddr; }
+		int Handle() const { return handle; };
 	private:
 		void CheckState();
 		CONNECTIONSTATE state;

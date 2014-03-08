@@ -14,6 +14,8 @@ namespace network {
 		bool Connect(const NetworkAddress &);
 		bool Listen(int);
 		void Close();
+		/* close an unassociated socket handle */
+		static void Close(int &);
 		/* Enable or disable TCP keepalive */
 		bool SetKeepAlive(bool);
 

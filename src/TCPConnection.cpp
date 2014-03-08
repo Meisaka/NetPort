@@ -262,6 +262,17 @@ namespace network {
 		return true;
 	}
 
+	void TCPConnection::Close(int &h)
+	{
+		if(h == INVALID_SOCKET) { return; }
+		shutdown(h, SHUT_RDWR);
+	#ifdef WIN32
+		closesocket(h);
+	#else
+		close(h);
+	#endif
+		h = 0;
+	}
 	void TCPConnection::Close()
 	{
 		if(!handle) { return; }

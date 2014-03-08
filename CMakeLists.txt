@@ -9,12 +9,25 @@ set(INCLUDE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 option(COPYSAFE "Allow NetPort classes to be copied" ON)
 
+message(STATUS "Platform: '${CMAKE_SYSTEM_NAME}'")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	set(LINUX TRUE)
+else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	set(LINUX FALSE)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
 configure_file(${SOURCE_ROOT}/config.in ${SOURCE_ROOT}/config.h)
 
 file(GLOB NET_SRC
 	"${SOURCE_ROOT}/*.c*"
 	)
+file(GLOB NET_INC
+	"${INCLUDE_ROOT}/include/net/*.h*"
+	"${SOURCE_ROOT}/src/config.in"
+	"${SOURCE_ROOT}/src/*.h*"
+	)
 source_group("net" FILES ${NET_SRC})
+source_group("includes" FILES ${NET_INC})
 
 include_directories(${INCLUDE_ROOT})
 

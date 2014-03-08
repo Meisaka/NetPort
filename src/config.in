@@ -3,4 +3,5 @@
  */
 
 #cmakedefine COPYSAFE
+#cmakedefine LINUX
 

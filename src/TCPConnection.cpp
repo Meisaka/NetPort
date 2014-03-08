@@ -59,7 +59,8 @@ namespace network {
 			return false;
 		}
 #else
-		// These options may be Linux specific
+#ifdef LINUX
+		// These options are Linux specific (not portable)
 		if(setsockopt(handle, SOL_TCP, TCP_KEEPIDLE, &time, sizeof(unsigned long))) {
 			return false;
 		}
@@ -69,6 +70,7 @@ namespace network {
 		if(setsockopt(handle, SOL_TCP, TCP_KEEPINTVL, &intvl, sizeof(unsigned long))) {
 			return false;
 		}
+#endif
 #endif
 		return true;
 	}

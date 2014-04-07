@@ -109,7 +109,10 @@ namespace network {
 		FD_ZERO(&fd);
 		FD_SET(handle, &fd);
 		int i;
-		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+		struct timeval tv;
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 			if(i == -1) { return false; }
 			return true;
 		}

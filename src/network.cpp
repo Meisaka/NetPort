@@ -143,6 +143,30 @@ namespace network {
 	#endif
 	}
 
+	void getTime(TimeValue & rtv) {
+#ifdef WIN32
+		LARGE_INTEGER ticks, freq;
+		unsigned long long leftovers;
+		QueryPerformanceFrequency(&freq); 
+		QueryPerformanceCounter(&ticks);
+		rtv.seconds = ticks.QuadPart / freq.QuadPart;
+		leftovers = ticks.QuadPart % freq.QuadPart;
+		rtv.nanoseconds = (leftovers * 1000000000) / freq.QuadPart;
+#else
+#ifdef LINUX
+		struct timespec tvs;
+		clock_gettime(4, &tvs); /* since 2.6.28 */
+		rtv.seconds = tvs.tv_sec;
+		rtv.nanoseconds = tvs.tv.nsec;
+#else
+		struct timespec tvs;
+		clock_gettime(CLOCK_MONOTONIC, &tvs); // maybe
+		rtv.seconds = tvs.tv_sec;
+		rtv.nanoseconds = tvs.tv.nsec;
+#endif
+#endif
+	}
+
 	void Initialize() {
 	#ifdef WIN32
 		WSADATA wsd;

@@ -8,6 +8,7 @@ set(SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 option(COPYSAFE "Allow NetPort classes to be copied" ON)
+option(TESTAPPS "Build the MEI test client and server" OFF)
 
 message(STATUS "Platform: '${CMAKE_SYSTEM_NAME}'")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -34,4 +35,18 @@ include_directories(${INCLUDE_ROOT})
 add_library(netport STATIC
 	${NET_SRC}
 	)
+
+if(TESTAPPS)
+	file(GLOB NET_TEST_C
+		"${SOURCE_ROOT}/test-client/*.c*"
+		)
+	file(GLOB NET_TEST_S
+		"${SOURCE_ROOT}/test-server/*.c*"
+		)
+	add_executable(MEI-client ${NET_TEST_C})
+	add_executable(MEI-server ${NET_TEST_S})
+
+	target_link_libraries(MEI-client netport)
+	target_link_libraries(MEI-server netport)
+endif(TESTAPPS)
 

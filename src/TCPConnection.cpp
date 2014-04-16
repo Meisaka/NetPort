@@ -118,6 +118,10 @@ namespace network {
 		}
 		return false;
 	}
+	int TCPConnection::Send(int handle, const char * buf, int buflen)
+	{
+		return send(handle, buf, buflen, 0);
+	}
 	int TCPConnection::Send(const char * buf, int buflen)
 	{
 		int i;
@@ -140,12 +144,9 @@ namespace network {
 		}
 		return i;
 	}
-	int TCPConnection::Recv(char * buf, int buflen)
+	int TCPConnection::Recv(int handle, char * buf, int buflen)
 	{
-		int i;
-		if(!handle) { return -1; }
-		if(state != SCS_CONNECTED) { return -1; }
-		i = recv(handle, buf, buflen, 0);
+		int i = recv(handle, buf, buflen, 0);
 		if(i <= 0) {
 #ifdef WIN32
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
@@ -154,6 +155,16 @@ namespace network {
 #endif
 				return 0;
 			}
+		}
+		return i;
+	}
+	int TCPConnection::Recv(char * buf, int buflen)
+	{
+		int i;
+		if(!handle) { return -1; }
+		if(state != SCS_CONNECTED) { return -1; }
+		i = TCPConnection::Recv(handle, buf, buflen);
+		if(i < 0) {
 			TCPConnection::Close();
 		}
 		return i;

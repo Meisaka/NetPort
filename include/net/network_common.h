@@ -5,6 +5,15 @@
 #include <string>
 
 namespace network {
+#ifdef WIN32
+#if defined(_WIN64)
+	typedef unsigned __int64 socket_t;
+#else
+	typedef unsigned int socket_t;
+#endif
+#else
+	typedef int socket_t;
+#endif
 	enum ADDRTYPE {
 		NETA_UNDEF= 0,
 		NETA_IPv4 = 2,

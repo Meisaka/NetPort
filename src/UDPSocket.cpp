@@ -13,7 +13,7 @@ namespace network {
 			Close();
 		}
 		this->af = afn;
-		int sc;
+		socket_t sc;
 		sc = socket(afn, SOCK_DGRAM, IPPROTO_UDP);
 		if(INVALID_SOCKET == sc) {
 			return false;

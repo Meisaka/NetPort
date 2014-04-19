@@ -6,8 +6,8 @@ namespace network {
 	class TCPConnection : public INetworkStream {
 	public:
 		TCPConnection(void);
-		TCPConnection(int,int);
-		TCPConnection(int,int,CONNECTIONSTATE);
+		TCPConnection(socket_t, int);
+		TCPConnection(socket_t, int, CONNECTIONSTATE);
 		bool Init(ADDRTYPE);
 		~TCPConnection(void);
 
@@ -16,7 +16,7 @@ namespace network {
 		bool Listen(int);
 		void Close();
 		/* close an unassociated socket handle */
-		static void Close(int &);
+		static void Close(socket_t &);
 		/* Enable or disable TCP keepalive */
 		bool SetKeepAlive(bool);
 
@@ -40,7 +40,7 @@ namespace network {
 		bool IsConnected();
 		bool IsListening();
 		const NetworkAddress& GetRemote() { return raddr; }
-		int Handle() const { return handle; };
+		socket_t Handle() const { return handle; };
 	private:
 		void CheckState();
 		CONNECTIONSTATE state;
@@ -48,6 +48,6 @@ namespace network {
 		NetworkAddress laddr;
 		NetworkAddress raddr;
 		int af;
-		int handle;
+		socket_t handle;
 	};
 }

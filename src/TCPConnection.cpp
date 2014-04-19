@@ -5,12 +5,12 @@
 namespace network {
 	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED), handle(0), af(0) {}
 
-	TCPConnection::TCPConnection(int hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
 	{
 		TCPConnection::CheckState();
 	}
 
-	TCPConnection::TCPConnection(int hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
 	{
 		TCPConnection::CheckState();
 	}
@@ -109,7 +109,11 @@ namespace network {
 		FD_ZERO(&fd);
 		FD_SET(handle, &fd);
 		int i;
-		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+#ifdef WIN32
+		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+#else
+		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+#endif
 			if(i == -1) { return false; }
 			return true;
 		}
@@ -185,7 +189,11 @@ namespace network {
 		FD_ZERO(&fd);
 		FD_SET(handle,&fd);
 		int i;
-		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#ifdef WIN32
+		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#else
+		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#endif
 			if(i == -1) { return false; }
 			return true;
 		}
@@ -196,7 +204,7 @@ namespace network {
 	{
 		if(this->state != SCS_LISTEN) { return false; }
 		if(!that) { return false; }
-		int h;
+		socket_t h;
 		socklen_t sas = sizeof(sockaddr);
 		h = accept(this->handle, (struct sockaddr*)&that->raddr.addr, &sas);
 		if(h == INVALID_SOCKET) {
@@ -217,7 +225,7 @@ namespace network {
 			Close();
 		}
 		this->af = afn;
-		int sc;
+		socket_t sc;
 		sc = socket(afn, SOCK_STREAM, IPPROTO_TCP);
 		if(INVALID_SOCKET == sc) {
 			return false;
@@ -270,7 +278,7 @@ namespace network {
 		return true;
 	}
 
-	void TCPConnection::Close(int &h)
+	void TCPConnection::Close(socket_t &h)
 	{
 		if(h == INVALID_SOCKET) { return; }
 		shutdown(h, SHUT_RDWR);

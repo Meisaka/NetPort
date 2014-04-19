@@ -23,9 +23,9 @@ file(GLOB NET_SRC
 	"${SOURCE_ROOT}/*.c*"
 	)
 file(GLOB NET_INC
-	"${INCLUDE_ROOT}/include/net/*.h*"
-	"${SOURCE_ROOT}/src/config.in"
-	"${SOURCE_ROOT}/src/*.h*"
+	"${INCLUDE_ROOT}/net/*.h*"
+	"${SOURCE_ROOT}/config.in"
+	"${SOURCE_ROOT}/*.h*"
 	)
 source_group("net" FILES ${NET_SRC})
 source_group("includes" FILES ${NET_INC})
@@ -33,7 +33,7 @@ source_group("includes" FILES ${NET_INC})
 include_directories(${INCLUDE_ROOT})
 
 add_library(netport STATIC
-	${NET_SRC}
+	${NET_SRC} ${NET_INC}
 	)
 
 if(TESTAPPS)

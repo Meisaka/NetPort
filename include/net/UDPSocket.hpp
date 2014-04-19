@@ -22,6 +22,6 @@ namespace network {
 		bool bound;
 		NetworkAddress laddr;
 		ADDRTYPE af;
-		int handle;
+		socket_t handle;
 	};
 }

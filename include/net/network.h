@@ -9,5 +9,11 @@
 namespace network {
 	void Initialize();
 	int sleep(int msec);
+
+	struct TimeValue {
+		unsigned long seconds;
+		unsigned long nanoseconds;
+	};
+	void getTime(TimeValue &);
 }
 #endif

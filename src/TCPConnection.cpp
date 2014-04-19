@@ -109,15 +109,22 @@ namespace network {
 		FD_ZERO(&fd);
 		FD_SET(handle, &fd);
 		int i;
+		struct timeval tv;
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
 #ifdef WIN32
-		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #else
-		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), NULL)) {
+		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #endif
 			if(i == -1) { return false; }
 			return true;
 		}
 		return false;
+	}
+	int TCPConnection::Send(socket_t handle, const char * buf, int buflen)
+	{
+		return send(handle, buf, buflen, 0);
 	}
 	int TCPConnection::Send(const char * buf, int buflen)
 	{
@@ -141,12 +148,9 @@ namespace network {
 		}
 		return i;
 	}
-	int TCPConnection::Recv(char * buf, int buflen)
+	int TCPConnection::Recv(socket_t handle, char * buf, int buflen)
 	{
-		int i;
-		if(!handle) { return -1; }
-		if(state != SCS_CONNECTED) { return -1; }
-		i = recv(handle, buf, buflen, 0);
+		int i = recv(handle, buf, buflen, 0);
 		if(i <= 0) {
 #ifdef WIN32
 			if(WSAGetLastError() == WSAEWOULDBLOCK) {
@@ -155,6 +159,16 @@ namespace network {
 #endif
 				return 0;
 			}
+		}
+		return i;
+	}
+	int TCPConnection::Recv(char * buf, int buflen)
+	{
+		int i;
+		if(!handle) { return -1; }
+		if(state != SCS_CONNECTED) { return -1; }
+		i = TCPConnection::Recv(handle, buf, buflen);
+		if(i < 0) {
 			TCPConnection::Close();
 		}
 		return i;

@@ -33,8 +33,12 @@ namespace network {
 		bool Accept(TCPConnection *);
 		bool Select(bool rd, bool wr, bool er);
 		bool Select(bool rd, bool wr, bool er, long sec, long microsec);
+		// send data to unassociated socket
+		static int Send(socket_t handle, const char *, int);
 		int Send(const char *, int);
 		int Send(const std::string &);
+		// receive data from an unassociated socket
+		static int Recv(socket_t handle, char *, int);
 		int Recv(char *, int);
 		int Recv(std::string &, int);
 		bool IsConnected();

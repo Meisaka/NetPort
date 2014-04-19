@@ -3,5 +3,6 @@
  */
 
 #cmakedefine COPYSAFE
+#cmakedefine CPPELEVEN
 #cmakedefine LINUX
 

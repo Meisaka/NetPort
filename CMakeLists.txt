@@ -8,17 +8,21 @@ set(SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if(NOT CPPELEVEN_TESTED)
+	message(STATUS "Testing for C++11...")
 	try_compile(CPPELEVEN_SUPPORTED
 		"${CMAKE_CURRENT_SOURCE_DIR}/envtest/bin"
 		"${CMAKE_CURRENT_SOURCE_DIR}/envtest"
 		CPPLevenTest
 	)
-	set(CPPELEVEN_TESTED TRUE CACHE BOOL "C++11 test ran")
+	unset(CPPELEVEN_TESTED CACHE)
+	set(CPPELEVEN_TESTED TRUE CACHE BOOL "C++11 test ran, set to false to re-run")
 	mark_as_advanced(CPPELEVEN_TESTED)
 
 	if(CPPELEVEN_SUPPORTED)
+	message(STATUS "C++11 supported")
 	option(CPPELEVEN "Use C++11" ON)
 	else(CPPELEVEN_SUPPORTED)
+	message(WARNING "C++11 is not supported")
 	option(CPPELEVEN "Use C++11 anyway (test failed)" OFF)
 	endif(CPPELEVEN_SUPPORTED)
 endif(NOT CPPELEVEN_TESTED)

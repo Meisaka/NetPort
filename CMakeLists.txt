@@ -7,6 +7,22 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 set(SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+if(NOT CPPELEVEN_TESTED)
+	try_compile(CPPELEVEN_SUPPORTED
+		"${CMAKE_CURRENT_SOURCE_DIR}/envtest/bin"
+		"${CMAKE_CURRENT_SOURCE_DIR}/envtest"
+		CPPLevenTest
+	)
+	set(CPPELEVEN_TESTED TRUE CACHE BOOL "C++11 test ran")
+	mark_as_advanced(CPPELEVEN_TESTED)
+
+	if(CPPELEVEN_SUPPORTED)
+	option(CPPELEVEN "Use C++11" ON)
+	else(CPPELEVEN_SUPPORTED)
+	option(CPPELEVEN "Use C++11 anyway (test failed)" OFF)
+	endif(CPPELEVEN_SUPPORTED)
+endif(NOT CPPELEVEN_TESTED)
+
 option(COPYSAFE "Allow NetPort classes to be copied" ON)
 option(TESTAPPS "Build the MEI test client and server" OFF)
 

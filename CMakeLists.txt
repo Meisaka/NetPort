@@ -31,7 +31,7 @@ source_group("includes" FILES ${NET_INC})
 
 include_directories(${INCLUDE_ROOT})
 
-add_library(netport STATIC
+add_library(netport SHARED
 	${NET_SRC}
 	)
 

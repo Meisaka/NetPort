@@ -162,7 +162,7 @@ namespace network {
 		struct timespec tvs;
 		clock_gettime(CLOCK_MONOTONIC, &tvs); // maybe
 		rtv.seconds = tvs.tv_sec;
-		rtv.nanoseconds = tvs.tv.nsec;
+		rtv.nanoseconds = tvs.tv_nsec;
 #endif
 #endif
 	}

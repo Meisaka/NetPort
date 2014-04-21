@@ -1,6 +1,6 @@
 #pragma once
 
-#include "network_common.h"
+#include "network_common.hpp"
 
 namespace network {
 	class TCPConnection : public INetworkStream {

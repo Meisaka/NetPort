@@ -2,8 +2,8 @@
 #ifndef INCL_NETWORK
 #define INCL_NETWORK
 
-#include "network_common.h"
-#include "TCPConnection.h"
+#include "network_common.hpp"
+#include "TCPConnection.hpp"
 #include "UDPSocket.hpp"
 
 namespace network {

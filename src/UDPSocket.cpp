@@ -47,15 +47,21 @@ namespace network {
 	bool UDPSocket::IsBound() const {
 		return this->bound;
 	}
-	bool UDPSocket::SetNonBlocking()
+	bool UDPSocket::SetNonBlocking(bool enable)
 	{
-		unsigned long iMode = 1;
 		if(!handle) { return false; }
-	#ifdef WIN32
+#ifdef WIN32
+		unsigned long iMode = (enable ? 1 : 0);
 		ioctlsocket(handle, FIONBIO, &iMode);
-	#else
-		ioctl(handle, FIONBIO, &iMode);
-	#endif
+#else
+		int flags = fcntl(handle, F_GETFL, 0);
+		if(enable) {
+			flags |= O_NONBLOCK;
+		} else {
+			flags ^= O_NONBLOCK;
+		}
+		fcntl(handle, F_SETFL, flags);
+#endif
 		return true;
 	}
 
@@ -92,8 +98,8 @@ namespace network {
 		if(!handle) { return -1; }
 		r.af = this->af;
 		socklen_t x = r.Length();
-		char f[2000]; // MTU of most networks is limited to 1500, so this should be enough space ;)
-		int i = recvfrom(handle, f, 2000, 0, (struct sockaddr*)&r.addr, &x);
+		char f[9000]; // MTU of most networks is limited to 1500, so this should be enough space ;)
+		int i = recvfrom(handle, f, 9000, 0, (struct sockaddr*)&r.addr, &x);
 		if(i > 0) {
 			s.assign(f, i);
 		} else if(i < 0) {
@@ -106,7 +112,7 @@ namespace network {
 			}
 #ifdef WIN32
 			if(WSAGetLastError() == WSAEMSGSIZE) {
-				return 2000;
+				return 9000;
 			}
 #endif
 		}

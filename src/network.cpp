@@ -89,6 +89,11 @@ namespace network {
 		return ret;
 	}
 
+	void NetworkAddress::IP4(const char * txta, unsigned short p)
+	{
+		NetworkAddress::IP4(txta);
+		NetworkAddress::Port(p);
+	}
 	void NetworkAddress::IP4(const char * txta)
 	{
 		addr.sa_family = AF_INET;
@@ -110,6 +115,33 @@ namespace network {
 		}
 		if(sect < 4) aa[sect] = ipev;
 		((struct sockaddr_in*)&addr)->sin_addr = ra4;
+	}
+	void NetworkAddress::IP4(const std::string & txtd)
+	{
+		NetworkAddress::IP4(txtd, 0);
+	}
+	void NetworkAddress::IP4(const std::string & txtd, unsigned short p)
+	{
+		addr.sa_family = AF_INET;
+		af = NETA_IPv4;
+		struct in_addr ra4;
+		unsigned char ipev;
+		int i;
+		int sect;
+		unsigned char* aa = (unsigned char*)&ra4;
+		ipev = 0;
+		for(i = 0, sect = 0; i < txtd.length() && sect < 4; i++) {
+			if(txtd[i] >= '0' && txtd[i] <= '9') {
+				ipev = (ipev * 10) + (txtd[i] - '0');
+			} else {
+				aa[sect] = ipev;
+				sect++;
+				ipev = 0;
+			}
+		}
+		if(sect < 4) aa[sect] = ipev;
+		((struct sockaddr_in*)&addr)->sin_addr = ra4;
+		((struct sockaddr_in*)&addr)->sin_port = htons(p);
 	}
 	void NetworkAddress::IP4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4)
 	{
@@ -157,12 +189,12 @@ namespace network {
 		struct timespec tvs;
 		clock_gettime(4, &tvs); /* since 2.6.28 */
 		rtv.seconds = tvs.tv_sec;
-		rtv.nanoseconds = tvs.tv.nsec;
+		rtv.nanoseconds = tvs.tv_nsec;
 #else
 		struct timespec tvs;
 		clock_gettime(CLOCK_MONOTONIC, &tvs); // maybe
 		rtv.seconds = tvs.tv_sec;
-		rtv.nanoseconds = tvs.tv.nsec;
+		rtv.nanoseconds = tvs.tv_nsec;
 #endif
 #endif
 	}

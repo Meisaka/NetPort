@@ -4,6 +4,18 @@
 
 #include <string>
 
+#ifdef NETPORT_SHARED
+	#if defined(_MSC_VER)
+		#define NETPORTEX __declspec(dllexport)
+	#elif defined(__GNUC__) || defined(__clang__)
+		#define NETPORTEX __attribute__((visibility("default")))
+	#else
+		#define NETPORTEX
+	#endif
+#else
+	#define NETPORTEX
+#endif
+
 namespace network {
 	enum ADDRTYPE {
 		NETA_UNDEF= 0,

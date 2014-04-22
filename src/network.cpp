@@ -54,8 +54,8 @@ namespace network {
 		std::string ret;
 		switch(af) {
 		case NETA_IPv4:
-			{
-				ret.clear();
+		{
+			ret.clear();
 			cvb[3] = 0;
 			in_addr ra4 = ((struct sockaddr_in*)&addr)->sin_addr;
 			unsigned char* aa = (unsigned char*)&ra4;
@@ -70,21 +70,21 @@ namespace network {
 			ret.append(":");
 			ret.append(n_itoan(ntohs(((struct sockaddr_in*)&addr)->sin_port),cvb,10,10));
 			return ret;
-			}
+		}
 		case NETA_IPv6:
-			{
-				ret.clear();
+		{
+			ret.clear();
 			in6_addr ra6 = ((struct sockaddr_in6*)&addr)->sin6_addr;
 			unsigned short* aa6 = (unsigned short*)&ra6;
 			ret.assign("[");
 			for(i = 0; i < 7; i++) {
-			ret.append(n_itoan(aa6[i],cvb,10,16)); ret.append(":");
+				ret.append(n_itoan(ntohs(aa6[i]), cvb, 10, 16)); ret.append(":");
 			}
-			ret.append(n_itoan(aa6[i],cvb,10,16));
+			ret.append(n_itoan(ntohs(aa6[i]), cvb, 10, 16));
 			ret.append("]:");
 			ret.append(n_itoan(ntohs(((struct sockaddr_in6*)&addr)->sin6_port),cvb,10,10));
 			return ret;
-			}
+		}
 		}
 		return ret;
 	}
@@ -165,7 +165,58 @@ namespace network {
 		((struct sockaddr_in*)&addr)->sin_addr.s_addr = htonl(i);
 	#endif
 	}
-
+	void NetworkAddress::IP6(const std::string &txtd, unsigned short p)
+	{
+		addr.sa_family = AF_INET6;
+		af = NETA_IPv6;
+		in6_addr ra6 = ((struct sockaddr_in6*)&addr)->sin6_addr;
+		unsigned short* aa6 = (unsigned short*)&ra6;
+		int i, sect;
+		int xpand, ltype;
+		ltype = 0;
+		xpand = 0;
+		unsigned short ipev = 0;
+		char cc;
+		for(i = 0, sect = 0; i < txtd.length() && sect < 8; i++) {
+			cc = txtd[i];
+			if(cc >= '0' && cc <= '9') {
+				ipev = (ipev << 4) + (cc - '0');
+				ltype = 1;
+			} else if(cc >= 'A' && cc <= 'F') {
+				ipev = (ipev << 4) + (cc - 'A') + 10;
+				ltype = 1;
+			} else if(cc >= 'a' && cc <= 'f') {
+				ipev = (ipev << 4) + (cc - 'a') + 10;
+				ltype = 1;
+			} else if(cc == ':') {
+				aa6[sect] = htons(ipev);
+				ipev = 0;
+				sect++;
+				if(2 == ltype) {
+					if(!xpand) {
+						xpand = sect - 1;
+					} else {
+						return; // invalid string
+					}
+				}
+				ltype = 2;
+			} else {
+				ltype = 0;
+			}
+		}
+		aa6[sect] = htons(ipev);
+		if(xpand && xpand < 8) {
+			int xofs = 7 - sect;
+			for(i = 7; i - xofs >= xpand; i--) {
+				aa6[i] = aa6[i - xofs];
+			}
+			for(; i >= xpand; i--) {
+				aa6[i] = 0xfefe;
+			}
+		}
+		((struct sockaddr_in6*)&addr)->sin6_addr = ra6;
+		((struct sockaddr_in6*)&addr)->sin6_port = htons(p);
+	}
 	int sleep(int msec) {
 	#ifdef WIN32
 		Sleep(msec);

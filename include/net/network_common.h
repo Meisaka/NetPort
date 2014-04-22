@@ -22,7 +22,7 @@ namespace network {
 
 	struct net_sockaddr {
 		unsigned short sa_family;
-		char sa_data[14];
+		char sa_data[48];
 	};
 
 	class INetworkStream {
@@ -53,5 +53,6 @@ namespace network {
 		std::string ToString() const;
 		int Length() const;
 	};
+	typedef struct NetworkAddress Address;
 }
 #endif

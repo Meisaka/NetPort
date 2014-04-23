@@ -45,7 +45,7 @@ file(GLOB NET_SRC
 	)
 file(GLOB NET_INC
 	"${INCLUDE_ROOT}/net/*.h*"
-	"${INCLUDE_ROOT}/net/network"
+	"${INCLUDE_ROOT}/network"
 	"${SOURCE_ROOT}/config.in"
 	"${SOURCE_ROOT}/*.h*"
 	)

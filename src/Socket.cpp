@@ -1,0 +1,77 @@
+
+#include "net/network.h"
+#include "network_os.h"
+
+namespace network {
+
+	Socket::Socket()
+	{
+		rhcount = nullptr;
+		handle = INVALID_SOCKET;
+	}
+
+	Socket::Socket(socket_t v)
+	{
+		handle = v;
+		rhcount = new unsigned long;
+		*rhcount = 1;
+	}
+
+	Socket::~Socket()
+	{
+		if(rhcount != nullptr) {
+			if(--*rhcount == 0) {
+				delete rhcount;
+				Socket::close();
+			}
+		}
+	}
+
+	socket_t Socket::release_handle()
+	{
+		socket_t h = handle;
+		if(rhcount != nullptr) {
+			if(--*rhcount == 0) {
+				delete rhcount;
+			}
+		}
+		handle = INVALID_SOCKET;
+		return h;
+	}
+
+	Socket::operator bool() const
+	{
+		return (handle != INVALID_SOCKET);
+	}
+
+	bool Socket::set_nonblocking(bool enable)
+	{
+		if(!*this) { return false; }
+#ifdef WIN32
+		unsigned long iMode = (enable ? 1 : 0);
+		ioctlsocket(handle, FIONBIO, &iMode);
+#else
+		int flags = fcntl(handle, F_GETFL, 0);
+		if(enable) {
+			flags |= O_NONBLOCK;
+		} else {
+			flags ^= O_NONBLOCK;
+		}
+		fcntl(handle, F_SETFL, flags);
+#endif
+		return true;
+	}
+
+	void Socket::close()
+	{
+		if(!*this) { return; }
+		shutdown(handle, SHUT_RDWR);
+#ifdef WIN32
+		closesocket(handle);
+#else
+		::close(handle);
+#endif
+		handle = INVALID_SOCKET;
+	}
+
+}

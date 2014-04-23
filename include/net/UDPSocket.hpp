@@ -3,25 +3,22 @@
 #include "network_common.hpp"
 
 namespace network {
-	class UDPSocket {
+	class UDPSocket : public Socket {
 	public:
 		UDPSocket();
 		~UDPSocket();
 
-		bool Init(ADDRTYPE af);
-		bool Bind(NetworkAddress &);
-		void Close();
-		bool SetNonBlocking(bool enable);
-		bool IsBound() const;
+		bool init(ADDRTYPE af);
+		bool bind(NetworkAddress &);
 
-		int SendTo(const NetworkAddress &, const char *, size_t);
-		int SendTo(const NetworkAddress &, const std::string &);
-		int RecvFrom(NetworkAddress &, char *, size_t);
-		int RecvFrom(NetworkAddress &, std::string &);
+		bool is_bound() const;
+
+		int send_to(const NetworkAddress &, const char *, size_t);
+		int send_to(const NetworkAddress &, const std::string &);
+		int recv_from(NetworkAddress &, char *, size_t);
+		int recv_from(NetworkAddress &, std::string &);
 	private:
 		bool bound;
 		NetworkAddress laddr;
-		ADDRTYPE af;
-		socket_t handle;
 	};
 }

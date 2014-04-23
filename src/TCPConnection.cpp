@@ -3,14 +3,16 @@
 #include "config.h"
 
 namespace network {
-	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED), handle(0), af(0) {}
+	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED) {}
 
-	TCPConnection::TCPConnection(socket_t hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn)
+		: bound(false), state(SCS_CLOSED), Socket(hndl)
 	{
 		TCPConnection::CheckState();
 	}
 
-	TCPConnection::TCPConnection(socket_t hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn, CONNECTIONSTATE scs)
+		: bound(false), state(scs), Socket(hndl)
 	{
 		TCPConnection::CheckState();
 	}
@@ -28,7 +30,7 @@ namespace network {
 #endif
 	}
 
-	bool TCPConnection::SetNoDelay(bool enable)
+	bool TCPConnection::set_no_delay(bool enable)
 	{
 		unsigned long i = (enable ? 1 : 0);
 		if(!handle) { return false; }
@@ -38,7 +40,7 @@ namespace network {
 		return true;
 	}
 
-	bool TCPConnection::SetKeepAlive(bool enable)
+	bool TCPConnection::set_keepalive(bool enable)
 	{
 		unsigned long i = (enable ? 1 : 0);
 		if(!handle) { return false; }
@@ -48,7 +50,7 @@ namespace network {
 		return true;
 	}
 
-	bool TCPConnection::SetKeepAlive(bool enable, unsigned long time, unsigned long intvl, unsigned long probes)
+	bool TCPConnection::set_keepalive(bool enable, unsigned long time, unsigned long intvl, unsigned long probes)
 	{
 		unsigned long i = (enable ? 1 : 0);
 		if(!handle) { return false; }
@@ -83,26 +85,7 @@ namespace network {
 		return true;
 	}
 
-	bool TCPConnection::SetNonBlocking(bool enable)
-	{
-		if(!handle) { return false; }
-	#ifdef WIN32
-		unsigned long iMode = (enable ? 1 : 0);
-		ioctlsocket(handle, FIONBIO, &iMode);
-	#else
-		int flags = fcntl(handle, F_GETFL, 0);
-		if (enable) {
-			flags |= O_NONBLOCK;
-		}
-		else {
-			flags ^= O_NONBLOCK;
-		}
-		fcntl(handle, F_SETFL, flags);
-	#endif
-		return true;
-	}
-
-	bool TCPConnection::Select(bool rd, bool wr, bool er)
+	bool TCPConnection::select(bool rd, bool wr, bool er)
 	{
 		if(!handle) { return false; }
 		fd_set fd;
@@ -113,71 +96,55 @@ namespace network {
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 #ifdef WIN32
-		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #else
-		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #endif
 			if(i == -1) { return false; }
 			return true;
 		}
 		return false;
 	}
-	int TCPConnection::Send(socket_t handle, const char * buf, int buflen)
-	{
-		return send(handle, buf, buflen, 0);
-	}
-	int TCPConnection::Send(const char * buf, int buflen)
+	
+	int TCPConnection::send(const char * buf, int buflen)
 	{
 		int i;
 		if(!handle) { return -1; }
 		if(state != SCS_CONNECTED) { return -1; }
-		i = send(handle, buf, buflen, 0);
+		i = ::send(handle, buf, buflen, 0);
 		if(i < 0) {
-			TCPConnection::Close();
+			Socket::close();
 		}
 		return i;
 	}
-	int TCPConnection::Send(const std::string &s)
+	int TCPConnection::send(const std::string &s)
 	{
 		int i;
 		if(!handle) { return -1; }
 		if(state != SCS_CONNECTED) { return -1; }
-		i = send(handle, s.data(), s.length(), 0);
+		i = ::send(handle, s.data(), s.length(), 0);
 		if(i < 0) {
-			TCPConnection::Close();
+			Socket::close();
 		}
 		return i;
 	}
-	int TCPConnection::Recv(socket_t handle, char * buf, int buflen)
-	{
-		int i = recv(handle, buf, buflen, 0);
-		if(i <= 0) {
-#ifdef WIN32
-			if(WSAGetLastError() == WSAEWOULDBLOCK) {
-#else
-			if(errno == EAGAIN || errno == EWOULDBLOCK) {
-#endif
-				return 0;
-			}
-		}
-		return i;
-	}
-	int TCPConnection::Recv(char * buf, int buflen)
+	
+	int TCPConnection::recv(char * buf, int buflen)
 	{
 		int i;
 		if(!handle) { return -1; }
 		if(state != SCS_CONNECTED) { return -1; }
-		i = TCPConnection::Recv(handle, buf, buflen);
+		i = network::recv(handle, buf, buflen);
 		if(i < 0) {
-			TCPConnection::Close();
+			Socket::close();
 		}
 		return i;
 	}
-	int TCPConnection::Recv(std::string &s, int buflen)
+	int TCPConnection::recv(std::string &s, int buflen)
 	{
 		if(!handle) { return -1; }
 		char *h = new char[buflen];
-		int i = Recv(h, buflen);
+		int i = TCPConnection::recv(h, buflen);
 		if(i > 0) {
 			s.assign(h, i);
 		}
@@ -185,15 +152,15 @@ namespace network {
 		return i;
 	}
 
-	bool TCPConnection::IsConnected()
+	bool TCPConnection::is_connected() const
 	{
 		return (state == SCS_CONNECTED);
 	}
-	bool TCPConnection::IsListening()
+	bool TCPConnection::is_listening() const
 	{
 		return (state == SCS_LISTEN);
 	}
-	bool TCPConnection::Select(bool rd, bool wr, bool er, long sec, long microsec)
+	bool TCPConnection::select(bool rd, bool wr, bool er, long sec, long microsec)
 	{
 		if(!handle) { return false; }
 		struct timeval tv;
@@ -204,9 +171,9 @@ namespace network {
 		FD_SET(handle,&fd);
 		int i;
 #ifdef WIN32
-		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #else
-		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
 #endif
 			if(i == -1) { return false; }
 			return true;
@@ -214,31 +181,30 @@ namespace network {
 		return false;
 	}
 
-	bool TCPConnection::Accept(TCPConnection * that)
+	bool TCPConnection::accept(TCPConnection * that)
 	{
 		if(this->state != SCS_LISTEN) { return false; }
 		if(!that) { return false; }
 		socket_t h;
 		socklen_t sas = sizeof(sockaddr);
-		h = accept(this->handle, (struct sockaddr*)&that->raddr.addr, &sas);
+		h = ::accept(this->handle, (struct sockaddr*)&that->raddr.addr, &sas);
 		if(h == INVALID_SOCKET) {
 			return false;
 		}
 		that->laddr = this->laddr;
 		that->raddr.af = this->laddr.af;
-		that->af = this->af;
 		that->handle = h;
 		that->state = SCS_CONNECTED;
 		that->bound = true;
 		return true;
 	}
 
-	bool TCPConnection::Init(ADDRTYPE afn)
+	bool TCPConnection::init(ADDRTYPE afn)
 	{
 		if(handle) {
-			Close();
+			Socket::close();
 		}
-		this->af = afn;
+		this->laddr.af = afn;
 		socket_t sc;
 		sc = socket(afn, SOCK_STREAM, IPPROTO_TCP);
 		if(INVALID_SOCKET == sc) {
@@ -250,28 +216,28 @@ namespace network {
 		return true;
 	}
 
-	bool TCPConnection::Bind(const NetworkAddress &local)
+	bool TCPConnection::bind(const NetworkAddress &local)
 	{
 		if(!handle) { return false; }
 		long v = 1;
 		if(setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(long))) {
 			return false;
 		}
-		if(bind(handle, (struct sockaddr*)&local.addr, local.Length())) {
+		if(::bind(handle, (struct sockaddr*)&local.addr, local.length())) {
 			return false;
 		}
 		laddr = local;
 		bound = true;
 		return true;
 	}
-	bool TCPConnection::Connect(const NetworkAddress &remote)
+	bool TCPConnection::connect(const NetworkAddress &remote)
 	{
 		if(!handle) { return false; }
 		long v = 1;
 		if(setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(long))) {
 			return false;
 		}
-		if(connect(handle, (struct sockaddr*)&remote.addr, remote.Length())) {
+		if(::connect(handle, (struct sockaddr*)&remote.addr, remote.length())) {
 			return false;
 		}
 		raddr = remote;
@@ -280,48 +246,20 @@ namespace network {
 		return true;
 	}
 
-	bool TCPConnection::Listen(int queue)
+	bool TCPConnection::listen(int queue)
 	{
 		if(!handle) { return false; }
 		if(!bound) { return false; }
 		if(state != SCS_CLOSED) { return false; }
-		if(listen(handle, queue)) {
+		if(::listen(handle, queue)) {
 			return false;
 		}
 		state = SCS_LISTEN;
 		return true;
 	}
 
-	void TCPConnection::Close(socket_t &h)
-	{
-		if(h == INVALID_SOCKET) { return; }
-		shutdown(h, SHUT_RDWR);
-	#ifdef WIN32
-		closesocket(h);
-	#else
-		close(h);
-	#endif
-		h = 0;
-	}
-	void TCPConnection::Close()
-	{
-		if(!handle) { return; }
-		if(state != SCS_CLOSED) {
-			shutdown(handle, SHUT_RDWR);
-		}
-	#ifdef WIN32
-		closesocket(handle);
-	#else
-		close(handle);
-	#endif
-		state = SCS_CLOSED;
-		handle = 0;
-	}
 
 	TCPConnection::~TCPConnection(void)
 	{
-#ifndef COPYSAFE
-		Close();
-#endif
 	}
 }

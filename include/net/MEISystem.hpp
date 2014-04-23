@@ -7,8 +7,8 @@ namespace network {
 
 	class MEIEvent {
 	public:
-		MEIEvent();
-		~MEIEvent();
+		NETPORTEX MEIEvent();
+		NETPORTEX ~MEIEvent();
 	};
 
 	class IMEIControl;
@@ -17,20 +17,20 @@ namespace network {
 	{
 		friend class IMEIControl;
 	public:
-		MEISystem();
-		~MEISystem();
+		NETPORTEX MEISystem();
+		NETPORTEX ~MEISystem();
 
-		bool Init(ADDRTYPE);
-		bool Bind(const NetworkAddress &);
-		bool Listen();
-		void Close();
+		NETPORTEX bool init(ADDRTYPE);
+		NETPORTEX bool bind(const NetworkAddress &);
+		NETPORTEX bool listen();
+		NETPORTEX void close();
 
 		//bool Connect(const NetworkAddress &);
 
-		bool IsListening();
+		NETPORTEX bool is_listening();
 
-		void ProcessReceive();
-		void ProcessControl();
+		NETPORTEX void ProcessReceive();
+		NETPORTEX void ProcessControl();
 
 	private:
 		unsigned long systemid;

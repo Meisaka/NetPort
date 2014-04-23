@@ -7,13 +7,13 @@
 #include "UDPSocket.hpp"
 
 namespace network {
-	void Initialize();
-	int sleep(int msec);
+	NETPORTEX void initialize();
+	NETPORTEX int sleep(int msec);
 
 	struct TimeValue {
 		unsigned long seconds;
 		unsigned long nanoseconds;
 	};
-	void getTime(TimeValue &);
+	NETPORTEX void get_time(TimeValue &);
 }
 #endif

@@ -3,16 +3,15 @@
 #include "net/UDPSocket.hpp"
 
 namespace network {
-	UDPSocket::UDPSocket()  : bound(false), handle(0), af(NETA_UNDEF) { }
+	UDPSocket::UDPSocket()  : bound(false) { }
 	UDPSocket::~UDPSocket() {
-		Close();
 	}
 
-	bool UDPSocket::Init(ADDRTYPE afn) {
+	bool UDPSocket::init(ADDRTYPE afn) {
 		if(handle) {
-			Close();
+			close();
 		}
-		this->af = afn;
+		this->laddr.af = afn;
 		socket_t sc;
 		sc = socket(afn, SOCK_DGRAM, IPPROTO_UDP);
 		if(INVALID_SOCKET == sc) {
@@ -22,61 +21,35 @@ namespace network {
 		return true;
 	}
 
-	bool UDPSocket::Bind(NetworkAddress & local) {
+	bool UDPSocket::bind(NetworkAddress & local) {
 		if(!handle) { return false; }
 		long v = 1;
 		if(setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(long))) {
 			return false;
 		}
-		if(bind(handle, (struct sockaddr*)&local.addr, local.Length())) {
+		if(::bind(handle, (struct sockaddr*)&local.addr, local.length())) {
 			return false;
 		}
 		laddr = local;
 		bound = true;
 		return true;
 	}
-	void UDPSocket::Close() {
-		if(!handle) { return; }
-	#ifdef WIN32
-		closesocket(handle);
-	#else
-		close(handle);
-	#endif
-		handle = 0;
-	}
-	bool UDPSocket::IsBound() const {
+	bool UDPSocket::is_bound() const {
 		return this->bound;
 	}
-	bool UDPSocket::SetNonBlocking(bool enable)
-	{
-		if(!handle) { return false; }
-#ifdef WIN32
-		unsigned long iMode = (enable ? 1 : 0);
-		ioctlsocket(handle, FIONBIO, &iMode);
-#else
-		int flags = fcntl(handle, F_GETFL, 0);
-		if(enable) {
-			flags |= O_NONBLOCK;
-		} else {
-			flags ^= O_NONBLOCK;
-		}
-		fcntl(handle, F_SETFL, flags);
-#endif
-		return true;
-	}
 
-	int UDPSocket::SendTo(const NetworkAddress & r, const char * b, size_t l) {
+	int UDPSocket::send_to(const NetworkAddress & r, const char * b, size_t l) {
 		if(!handle) { return -1; }
-		return sendto(handle, b, l, 0, (struct sockaddr*)&r.addr, r.Length());
+		return sendto(handle, b, l, 0, (struct sockaddr*)&r.addr, r.length());
 	}
-	int UDPSocket::SendTo(const NetworkAddress & r, const std::string & s) {
+	int UDPSocket::send_to(const NetworkAddress & r, const std::string & s) {
 		if(!handle) { return -1; }
-		return sendto(handle, s.data(), s.length(), 0, (struct sockaddr*)&r.addr, r.Length());
+		return sendto(handle, s.data(), s.length(), 0, (struct sockaddr*)&r.addr, r.length());
 	}
-	int UDPSocket::RecvFrom(NetworkAddress & r, char * b, size_t l) {
+	int UDPSocket::recv_from(NetworkAddress & r, char * b, size_t l) {
 		if(!handle) { return -1; }
-		r.af = this->af;
-		socklen_t x = r.Length();
+		r.af = this->laddr.af;
+		socklen_t x = r.length();
 		int i = recvfrom(handle, b, l, 0, (struct sockaddr*)&r.addr, &x);
 		if(i < 0) {
 #ifdef WIN32
@@ -94,10 +67,10 @@ namespace network {
 		}
 		return i;
 	}
-	int UDPSocket::RecvFrom(NetworkAddress & r, std::string & s) {
+	int UDPSocket::recv_from(NetworkAddress & r, std::string & s) {
 		if(!handle) { return -1; }
-		r.af = this->af;
-		socklen_t x = r.Length();
+		r.af = this->laddr.af;
+		socklen_t x = r.length();
 		char f[9000]; // MTU of most networks is limited to 1500, so this should be enough space ;)
 		int i = recvfrom(handle, f, 9000, 0, (struct sockaddr*)&r.addr, &x);
 		if(i > 0) {

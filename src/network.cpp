@@ -25,7 +25,39 @@ namespace network {
 		return buf;
 	}
 
-	int NetworkAddress::Length() const {
+	void close(socket_t &h)
+	{
+		if(h == INVALID_SOCKET) { return; }
+		shutdown(h, SHUT_RDWR);
+#ifdef WIN32
+		closesocket(h);
+#else
+		::close(h);
+#endif
+		h = INVALID_SOCKET;
+	}
+
+	int send(socket_t handle, const char * buf, int buflen)
+	{
+		return ::send(handle, buf, buflen, 0);
+	}
+
+	int recv(socket_t handle, char * buf, int buflen)
+	{
+		int i = ::recv(handle, buf, buflen, 0);
+		if(i <= 0) {
+#ifdef WIN32
+			if(WSAGetLastError() == WSAEWOULDBLOCK) {
+#else
+			if(errno == EAGAIN || errno == EWOULDBLOCK) {
+#endif
+				return 0;
+			}
+		}
+		return i;
+	}
+
+	int NetworkAddress::length() const {
 		switch(af) {
 		case NETA_IPv4:
 			return sizeof(struct sockaddr_in);
@@ -35,7 +67,7 @@ namespace network {
 		return 0;
 	}
 
-	void NetworkAddress::Port(unsigned short p)
+	void NetworkAddress::port(unsigned short p)
 	{
 		switch(af) {
 		case NETA_IPv4:
@@ -47,7 +79,7 @@ namespace network {
 		}
 	}
 
-	std::string NetworkAddress::ToString() const
+	std::string NetworkAddress::to_string() const
 	{
 		int i,k;
 		char cvb[10];
@@ -92,7 +124,7 @@ namespace network {
 	void NetworkAddress::IP4(const char * txta, unsigned short p)
 	{
 		NetworkAddress::IP4(txta);
-		NetworkAddress::Port(p);
+		NetworkAddress::port(p);
 	}
 	void NetworkAddress::IP4(const char * txta)
 	{
@@ -250,7 +282,7 @@ namespace network {
 #endif
 	}
 
-	void Initialize() {
+	void initialize() {
 	#ifdef WIN32
 		WSADATA wsd;
 		WSAStartup(MAKEWORD(2,2), &wsd);

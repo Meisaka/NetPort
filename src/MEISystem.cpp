@@ -127,7 +127,7 @@ namespace network {
 	MEISystem::~MEISystem() {
 		IMEIControl::DeinitSystem(systemid);
 	}
-	bool MEISystem::Init(ADDRTYPE af) {
+	bool MEISystem::init(ADDRTYPE af) {
 		this->systemid = IMEIControl::InitSystem(systemid, af);
 		return true;
 	}

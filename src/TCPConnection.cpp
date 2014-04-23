@@ -1,16 +1,16 @@
-#include "net/TCPConnection.h"
+#include "net/TCPConnection.hpp"
 #include "network_os.h"
 #include "config.h"
 
 namespace network {
 	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED), handle(0), af(0) {}
 
-	TCPConnection::TCPConnection(int hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn) : bound(false), state(SCS_CLOSED), handle(hndl), af(afn)
 	{
 		TCPConnection::CheckState();
 	}
 
-	TCPConnection::TCPConnection(int hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
+	TCPConnection::TCPConnection(socket_t hndl, int afn, CONNECTIONSTATE scs) : bound(false), state(scs), handle(hndl), af(afn)
 	{
 		TCPConnection::CheckState();
 	}
@@ -112,13 +112,17 @@ namespace network {
 		struct timeval tv;
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
-		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#ifdef WIN32
+		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#else
+		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#endif
 			if(i == -1) { return false; }
 			return true;
 		}
 		return false;
 	}
-	int TCPConnection::Send(int handle, const char * buf, int buflen)
+	int TCPConnection::Send(socket_t handle, const char * buf, int buflen)
 	{
 		return send(handle, buf, buflen, 0);
 	}
@@ -144,7 +148,7 @@ namespace network {
 		}
 		return i;
 	}
-	int TCPConnection::Recv(int handle, char * buf, int buflen)
+	int TCPConnection::Recv(socket_t handle, char * buf, int buflen)
 	{
 		int i = recv(handle, buf, buflen, 0);
 		if(i <= 0) {
@@ -199,7 +203,11 @@ namespace network {
 		FD_ZERO(&fd);
 		FD_SET(handle,&fd);
 		int i;
-		if(i = select(handle+1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#ifdef WIN32
+		if(i = select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#else
+		if(i = select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+#endif
 			if(i == -1) { return false; }
 			return true;
 		}
@@ -210,7 +218,7 @@ namespace network {
 	{
 		if(this->state != SCS_LISTEN) { return false; }
 		if(!that) { return false; }
-		int h;
+		socket_t h;
 		socklen_t sas = sizeof(sockaddr);
 		h = accept(this->handle, (struct sockaddr*)&that->raddr.addr, &sas);
 		if(h == INVALID_SOCKET) {
@@ -231,7 +239,7 @@ namespace network {
 			Close();
 		}
 		this->af = afn;
-		int sc;
+		socket_t sc;
 		sc = socket(afn, SOCK_STREAM, IPPROTO_TCP);
 		if(INVALID_SOCKET == sc) {
 			return false;
@@ -284,7 +292,7 @@ namespace network {
 		return true;
 	}
 
-	void TCPConnection::Close(int &h)
+	void TCPConnection::Close(socket_t &h)
 	{
 		if(h == INVALID_SOCKET) { return; }
 		shutdown(h, SHUT_RDWR);

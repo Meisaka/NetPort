@@ -1,6 +1,6 @@
 #pragma once
 
-#include "network_common.h"
+#include "network_common.hpp"
 
 namespace network {
 	class UDPSocket {
@@ -11,7 +11,7 @@ namespace network {
 		bool Init(ADDRTYPE af);
 		bool Bind(NetworkAddress &);
 		void Close();
-		bool SetNonBlocking();
+		bool SetNonBlocking(bool enable);
 		bool IsBound() const;
 
 		int SendTo(const NetworkAddress &, const char *, size_t);
@@ -22,6 +22,6 @@ namespace network {
 		bool bound;
 		NetworkAddress laddr;
 		ADDRTYPE af;
-		int handle;
+		socket_t handle;
 	};
 }

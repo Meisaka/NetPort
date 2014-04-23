@@ -1,13 +1,13 @@
 #pragma once
 
-#include "network_common.h"
+#include "network_common.hpp"
 
 namespace network {
 	class TCPConnection : public INetworkStream {
 	public:
 		TCPConnection(void);
-		TCPConnection(int,int);
-		TCPConnection(int,int,CONNECTIONSTATE);
+		TCPConnection(socket_t, int);
+		TCPConnection(socket_t, int, CONNECTIONSTATE);
 		bool Init(ADDRTYPE);
 		~TCPConnection(void);
 
@@ -16,7 +16,7 @@ namespace network {
 		bool Listen(int);
 		void Close();
 		/* close an unassociated socket handle */
-		static void Close(int &);
+		static void Close(socket_t &);
 		/* Enable or disable TCP keepalive */
 		bool SetKeepAlive(bool);
 
@@ -34,17 +34,17 @@ namespace network {
 		bool Select(bool rd, bool wr, bool er);
 		bool Select(bool rd, bool wr, bool er, long sec, long microsec);
 		// send data to unassociated socket
-		static int Send(int handle, const char *, int);
+		static int Send(socket_t handle, const char *, int);
 		int Send(const char *, int);
 		int Send(const std::string &);
 		// receive data from an unassociated socket
-		static int Recv(int handle, char *, int);
+		static int Recv(socket_t handle, char *, int);
 		int Recv(char *, int);
 		int Recv(std::string &, int);
 		bool IsConnected();
 		bool IsListening();
 		const NetworkAddress& GetRemote() { return raddr; }
-		int Handle() const { return handle; };
+		socket_t Handle() const { return handle; };
 	private:
 		void CheckState();
 		CONNECTIONSTATE state;
@@ -52,6 +52,6 @@ namespace network {
 		NetworkAddress laddr;
 		NetworkAddress raddr;
 		int af;
-		int handle;
+		socket_t handle;
 	};
 }

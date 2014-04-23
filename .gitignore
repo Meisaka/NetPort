@@ -3,6 +3,7 @@ CMakeCache.txt
 *~
 *.swp
 src/config.h
+envtest/bin
 build
 cmake_install.cmake
 Makefile

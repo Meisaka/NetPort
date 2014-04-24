@@ -11,6 +11,24 @@ namespace network {
 		TCPConnection::CheckState();
 	}
 
+	TCPConnection::TCPConnection(TCPConnection && rc)
+	{
+		(Socket&)*this = (Socket&&)rc;
+		state = rc.state; rc.state = SCS_CLOSED;
+		laddr = rc.laddr;
+		raddr = rc.raddr;
+		bound = rc.bound; rc.bound = false;
+	}
+	TCPConnection & TCPConnection::operator=(TCPConnection && rc)
+	{
+		(Socket&)*this = (Socket&&)rc;
+		state = rc.state; rc.state = SCS_CLOSED;
+		laddr = rc.laddr;
+		raddr = rc.raddr;
+		bound = rc.bound; rc.bound = false;
+		return *this;
+	}
+
 	TCPConnection::TCPConnection(const NetworkAddress &la)
 	{
 		bind(la);
@@ -207,17 +225,18 @@ namespace network {
 		return false;
 	}
 
-	TCPConnection && TCPConnection::accept()
+	TCPConnection TCPConnection::accept()
 	{
-		if(this->state != SCS_LISTEN) { return std::move(TCPConnection()); }
+		TCPConnection rv;
+		if(this->state != SCS_LISTEN) { return rv; }
 		socket_t h;
 		socklen_t sas = sizeof(sockaddr);
 		address radd;
 		h = ::accept(this->handle, (struct sockaddr*)&radd.addr, &sas);
 		if(h == INVALID_SOCKET) {
-			return std::move(TCPConnection());
+			return rv;
 		}
-		return std::move(TCPConnection(h, this->laddr, radd));
+		return TCPConnection(h, this->laddr, radd);
 	}
 
 	bool TCPConnection::init(ADDRTYPE afn)
@@ -272,6 +291,20 @@ namespace network {
 		raddr = remote;
 		state = SCS_CONNECTED;
 		bound = true;
+		return true;
+	}
+
+	bool TCPConnection::listen(const NetworkAddress &local, int queue)
+	{
+		if(handle == INVALID_SOCKET) {
+			if(!bind(local)) {
+				return false;
+			}
+		}
+		if(::listen(handle, queue)) {
+			return false;
+		}
+		state = SCS_LISTEN;
 		return true;
 	}
 

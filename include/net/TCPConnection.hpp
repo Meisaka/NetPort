@@ -8,8 +8,8 @@ namespace network {
 		TCPConnection(void);
 		TCPConnection(const TCPConnection&) = delete;
 		TCPConnection & operator=(const TCPConnection&) = delete;
-		TCPConnection(TCPConnection &&) = default;
-		TCPConnection & operator=(TCPConnection &&) = default;
+		TCPConnection(TCPConnection &&);
+		TCPConnection & operator=(TCPConnection &&);
 		~TCPConnection(void);
 
 		TCPConnection(socket_t, int); // depricated
@@ -46,7 +46,7 @@ namespace network {
 		bool set_no_delay(bool enable);
 
 		// accepts new connections
-		TCPConnection && accept();
+		TCPConnection accept();
 		bool select(bool rd, bool wr, bool er) const;
 		bool select(bool rd, bool wr, bool er, long sec, long microsec) const;
 

@@ -21,12 +21,48 @@ namespace network {
 	{
 		if(rhcount != nullptr) {
 			if(--*rhcount == 0) {
-				delete rhcount;
+				delete rhcount; rhcount = nullptr;
 				Socket::close();
 			}
 		}
 	}
-
+/*
+	Socket::Socket(const Socket &rs)
+	{
+		if(rs.rhcount != nullptr) {
+			if(rhcount == nullptr) {
+				rhcount = rs.rhcount;
+				*rhcount++;
+			} else {
+				if(*rhcount-- == 0) {
+					delete rhcount;
+					Socket::close();
+				}
+				rhcount = rs.rhcount;
+			}
+			handle = rs.handle;
+		} else {
+		}
+	}
+	Socket & Socket::operator=(const Socket &rs)
+	{
+		if(rs.rhcount != nullptr) {
+			if(rhcount == nullptr) {
+				rhcount = rs.rhcount;
+				*rhcount++;
+			} else {
+				if(*rhcount-- == 0) {
+					delete rhcount;
+					Socket::close();
+				}
+				rhcount = rs.rhcount;
+			}
+			handle = rs.handle;
+		} else {
+		}
+		return *this;
+	}
+*/
 	Socket::Socket(Socket &&rs)
 	{
 		if(rs.rhcount != nullptr) {
@@ -34,9 +70,9 @@ namespace network {
 				rhcount = rs.rhcount;
 				rs.rhcount = nullptr;
 			} else {
-				delete rs.rhcount;
-				rs.rhcount = nullptr;
+				delete rs.rhcount; rs.rhcount = nullptr;
 			}
+		} else {
 		}
 		handle = rs.handle;
 		rs.handle = INVALID_SOCKET;
@@ -49,13 +85,13 @@ namespace network {
 				rhcount = rs.rhcount;
 				rs.rhcount = nullptr;
 			} else {
-				delete rs.rhcount;
-				rs.rhcount = nullptr;
+				delete rs.rhcount; rs.rhcount = nullptr;
 			}
+		} else {
 		}
 		handle = rs.handle;
 		rs.handle = INVALID_SOCKET;
-
+		return *this;
 	}
 
 	socket_t Socket::release_handle()
@@ -63,7 +99,7 @@ namespace network {
 		socket_t h = handle;
 		if(rhcount != nullptr) {
 			if(--*rhcount == 0) {
-				delete rhcount;
+				delete rhcount; rhcount = nullptr;
 			}
 		}
 		handle = INVALID_SOCKET;

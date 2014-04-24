@@ -7,6 +7,10 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib )
 set(SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+if(NOT MSVC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
+endif(NOT MSVC)
+
 if(NOT CPPELEVEN_TESTED)
 	message(STATUS "Testing for C++11...")
 	try_compile(CPPELEVEN_SUPPORTED
@@ -61,6 +65,10 @@ endif(BUILD_SHARED_LIBS)
 add_library(netport
 	${NET_SRC} ${NET_INC}
 	)
+
+if(LINUX)
+	target_link_libraries(netport rt)
+endif(LINUX)
 
 if(TESTAPPS)
 	file(GLOB NET_TEST_C

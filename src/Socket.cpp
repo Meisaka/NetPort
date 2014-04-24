@@ -27,6 +27,37 @@ namespace network {
 		}
 	}
 
+	Socket::Socket(Socket &&rs)
+	{
+		if(rs.rhcount != nullptr) {
+			if(rhcount == nullptr) {
+				rhcount = rs.rhcount;
+				rs.rhcount = nullptr;
+			} else {
+				delete rs.rhcount;
+				rs.rhcount = nullptr;
+			}
+		}
+		handle = rs.handle;
+		rs.handle = INVALID_SOCKET;
+	}
+
+	Socket & Socket::operator=(Socket &&rs)
+	{
+		if(rs.rhcount != nullptr) {
+			if(rhcount == nullptr) {
+				rhcount = rs.rhcount;
+				rs.rhcount = nullptr;
+			} else {
+				delete rs.rhcount;
+				rs.rhcount = nullptr;
+			}
+		}
+		handle = rs.handle;
+		rs.handle = INVALID_SOCKET;
+
+	}
+
 	socket_t Socket::release_handle()
 	{
 		socket_t h = handle;

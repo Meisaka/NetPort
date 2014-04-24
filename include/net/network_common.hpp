@@ -59,8 +59,8 @@ namespace network {
 		NETPORTEX Socket(socket_t);
 		NETPORTEX Socket(const Socket&) = delete;
 		NETPORTEX Socket & operator=(const Socket&) = delete;
-		NETPORTEX Socket(const Socket&&);
-		NETPORTEX Socket & operator=(const Socket&&);
+		NETPORTEX Socket(Socket &&);
+		NETPORTEX Socket & operator=(Socket &&);
 		NETPORTEX ~Socket();
 
 		// true if valid socket handle

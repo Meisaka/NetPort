@@ -27,6 +27,7 @@ namespace network {
 		bool bind(const NetworkAddress &); // bind a socket
 		bool listen(int); // listen on socket
 
+		bool init(const NetworkAddress &); // new tcp socket (unbound)
 		bool connect(const NetworkAddress &); // connect, makes new socket if none exists
 		bool listen(const NetworkAddress &, int); // bind and listen
 		
@@ -43,7 +44,7 @@ namespace network {
 		bool set_keepalive(bool, unsigned long, unsigned long, unsigned long);
 
 		// true disables nagle
-		bool set_no_delay(bool enable);
+		bool set_nodelay(bool enable);
 
 		// accepts new connections
 		TCPConnection accept();

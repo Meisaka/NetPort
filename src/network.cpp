@@ -2,6 +2,8 @@
 #include "net/network.h"
 #include "network_os.h"
 
+#include <cstring>
+
 namespace network {
 	static const char* RadixLookup =
 	"0123456789"
@@ -55,6 +57,68 @@ namespace network {
 			}
 		}
 		return i;
+	}
+
+	NetworkAddress::NetworkAddress()
+	{
+		addr.sa_family = 0;
+		af = NETA_UNDEF;
+		type = 0;
+		proto = 0;
+	}
+
+	NetworkAddress::NetworkAddress(const std::string &host)
+	{
+		resolve(host);
+	}
+
+	void NetworkAddress::resolve(const std::string &host)
+	{
+		struct addrinfo hint;
+		struct addrinfo *res, *itr;
+		int rc;
+		hint.ai_socktype = 0;
+		hint.ai_family = PF_UNSPEC;
+		hint.ai_protocol = 0;
+		hint.ai_flags = 0;
+		rc = getaddrinfo(host.c_str(), nullptr, &hint, &res);
+		if(!rc) {
+			type = res->ai_socktype;
+			proto = res->ai_protocol;
+			af = static_cast<ADDRTYPE>((unsigned short)res->ai_family);
+			std::memcpy(&addr, res->ai_addr, res->ai_addrlen > sizeof(net_sockaddr) ? sizeof(net_sockaddr) : res->ai_addrlen);
+		}
+		freeaddrinfo(res);
+	}
+
+	NetworkAddress::NetworkAddress(const std::string &host, const std::string &service)
+	{
+		resolve(host, service);
+	}
+
+	void NetworkAddress::resolve(const std::string &host, const std::string &service)
+	{
+		struct addrinfo hint;
+		struct addrinfo *res, *itr;
+		int rc;
+		hint.ai_socktype = 0;
+		hint.ai_family = PF_UNSPEC;
+		hint.ai_protocol = 0;
+		hint.ai_flags = 0;
+		rc = getaddrinfo(host.c_str(), service.c_str(), &hint, &res);
+		if(!rc) {
+			type = res->ai_socktype;
+			proto = res->ai_protocol;
+			af = static_cast<ADDRTYPE>((unsigned short)res->ai_family);
+			std::memcpy(&addr, res->ai_addr, res->ai_addrlen > sizeof(net_sockaddr) ? sizeof(net_sockaddr) : res->ai_addrlen);
+		}
+		freeaddrinfo(res);
+	}
+
+	NetworkAddress::NetworkAddress(const std::string &host, unsigned short port)
+	{
+		resolve(host);
+		NetworkAddress::port(port);
 	}
 
 	int NetworkAddress::length() const {

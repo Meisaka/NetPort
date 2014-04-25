@@ -2,6 +2,8 @@
 #include "network_os.h"
 #include "config.h"
 
+#include <iostream>
+
 namespace network {
 	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED) {}
 
@@ -69,11 +71,12 @@ namespace network {
 #endif
 	}
 
-	bool TCPConnection::set_no_delay(bool enable)
+	bool TCPConnection::set_nodelay(bool enable)
 	{
 		unsigned long i = (enable ? 1 : 0);
 		if(handle == INVALID_SOCKET) { return false; }
-		if(setsockopt(handle, SOL_SOCKET, TCP_NODELAY, (char*)&i, sizeof(unsigned long))) {
+		//if(setsockopt(handle, SOL_SOCKET, TCP_NODELAY, (char*)&i, sizeof(unsigned long))) {
+		if(setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, (char*)&i, sizeof(unsigned long))) {
 			return false;
 		}
 		return true;
@@ -193,16 +196,16 @@ namespace network {
 
 	bool TCPConnection::is_available() const
 	{
-		return select(true, false, false, 0, 0);
+		return (handle != INVALID_SOCKET) && select(true, false, false, 0, 0);
 	}
 
 	bool TCPConnection::is_connected() const
 	{
-		return (state == SCS_CONNECTED);
+		return (handle != INVALID_SOCKET) && (state == SCS_CONNECTED);
 	}
 	bool TCPConnection::is_listening() const
 	{
-		return (state == SCS_LISTEN);
+		return (handle != INVALID_SOCKET) && (state == SCS_LISTEN);
 	}
 	bool TCPConnection::select(bool rd, bool wr, bool er, long sec, long microsec) const
 	{
@@ -247,6 +250,22 @@ namespace network {
 		this->laddr.af = afn;
 		socket_t sc;
 		sc = socket(afn, SOCK_STREAM, IPPROTO_TCP);
+		if(INVALID_SOCKET == sc) {
+			return false;
+		}
+
+		handle = sc;
+		state = SCS_CLOSED;
+		return true;
+	}
+	bool TCPConnection::init(const NetworkAddress &type)
+	{
+		if(handle != INVALID_SOCKET) {
+			Socket::close();
+		}
+		this->laddr.af = type.af;
+		socket_t sc;
+		sc = socket(type.af, SOCK_STREAM, IPPROTO_TCP);
 		if(INVALID_SOCKET == sc) {
 			return false;
 		}

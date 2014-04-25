@@ -30,6 +30,7 @@ typedef int socklen_t;
 #include <netinet/ip.h>
 #include <netinet/ip6.h>
 #include <netinet/tcp.h>
+#include <netdb.h>
 typedef unsigned int socklen_t;
 #define INVALID_SOCKET (-1)
 #endif

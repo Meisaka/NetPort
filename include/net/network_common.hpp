@@ -90,6 +90,15 @@ namespace network {
 	public:
 		struct net_sockaddr addr;
 		ADDRTYPE af;
+		int type;
+		int proto;
+		NetworkAddress();
+		NetworkAddress(const std::string &host);
+		NetworkAddress(const std::string &host, unsigned short p);
+		NetworkAddress(const std::string &host, const std::string &service);
+
+		void resolve(const std::string &host);
+		void resolve(const std::string &host, const std::string &service);
 		void port(unsigned short p);
 		void IP4(const char *);
 		void IP4(const std::string &);

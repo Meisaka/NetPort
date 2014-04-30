@@ -100,15 +100,15 @@ namespace network {
 		void resolve(const std::string &host);
 		void resolve(const std::string &host, const std::string &service);
 		void port(unsigned short p);
-		void IP4(const char *);
-		void IP4(const std::string &);
-		void IP4(const char *, unsigned short p);
-		void IP4(const std::string &, unsigned short p);
-		void IP4(unsigned char i1, unsigned char i2, unsigned char i3, unsigned char i4);
-		void IP4(unsigned long i);
+		void ip4(const char *);
+		void ip4(const std::string &);
+		void ip4(const char *, unsigned short p);
+		void ip4(const std::string &, unsigned short p);
+		void ip4(unsigned char i1, unsigned char i2, unsigned char i3, unsigned char i4);
+		void ip4(unsigned long i);
 
-		void IP6(const std::string &);
-		void IP6(const std::string &, unsigned short p);
+		void ip6(const std::string &);
+		void ip6(const std::string &, unsigned short p);
 		std::string to_string() const;
 		int length() const;
 	} address;

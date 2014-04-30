@@ -185,12 +185,12 @@ namespace network {
 		return ret;
 	}
 
-	void NetworkAddress::IP4(const char * txta, unsigned short p)
+	void NetworkAddress::ip4(const char * txta, unsigned short p)
 	{
-		NetworkAddress::IP4(txta);
+		NetworkAddress::ip4(txta);
 		NetworkAddress::port(p);
 	}
-	void NetworkAddress::IP4(const char * txta)
+	void NetworkAddress::ip4(const char * txta)
 	{
 		addr.sa_family = AF_INET;
 		af = NETA_IPv4;
@@ -212,11 +212,11 @@ namespace network {
 		if(sect < 4) aa[sect] = ipev;
 		((struct sockaddr_in*)&addr)->sin_addr = ra4;
 	}
-	void NetworkAddress::IP4(const std::string & txtd)
+	void NetworkAddress::ip4(const std::string & txtd)
 	{
-		NetworkAddress::IP4(txtd, 0);
+		NetworkAddress::ip4(txtd, 0);
 	}
-	void NetworkAddress::IP4(const std::string & txtd, unsigned short p)
+	void NetworkAddress::ip4(const std::string & txtd, unsigned short p)
 	{
 		addr.sa_family = AF_INET;
 		af = NETA_IPv4;
@@ -239,7 +239,7 @@ namespace network {
 		((struct sockaddr_in*)&addr)->sin_addr = ra4;
 		((struct sockaddr_in*)&addr)->sin_port = htons(p);
 	}
-	void NetworkAddress::IP4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4)
+	void NetworkAddress::ip4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4)
 	{
 		addr.sa_family = AF_INET;
 		af = NETA_IPv4;
@@ -251,7 +251,7 @@ namespace network {
 		aa[3] = i4;
 		((struct sockaddr_in*)&addr)->sin_addr = ra4;
 	}
-	void NetworkAddress::IP4(unsigned long i)
+	void NetworkAddress::ip4(unsigned long i)
 	{
 		addr.sa_family = AF_INET;
 		af = NETA_IPv4;
@@ -261,7 +261,7 @@ namespace network {
 		((struct sockaddr_in*)&addr)->sin_addr.s_addr = htonl(i);
 	#endif
 	}
-	void NetworkAddress::IP6(const std::string &txtd, unsigned short p)
+	void NetworkAddress::ip6(const std::string &txtd, unsigned short p)
 	{
 		addr.sa_family = AF_INET6;
 		af = NETA_IPv6;

@@ -1,0 +1,25 @@
+language: cpp
+compiler: gcc
+before_install:
+    - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+    - sudo add-apt-repository --yes ppa:h-rayflood/llvm
+    - sudo apt-get -qq update
+install:
+    # Install libstdv++ 4.8 and clang
+    - sudo apt-get -qq install libstdc++-4.8-dev clang-3.3
+    # Setup clang and gcc
+    - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+before_script:
+    - mkdir build
+    - cd build
+    - cmake -DTESTAPPS=ON ..
+script:
+    - make
+
+notifications:
+    #email:
+        #- my.mail@foobar.com
+    irc:
+        - "irc.freenode.net#netport"
+

@@ -9,7 +9,7 @@
 #include <map>
 #include <cstdlib>
 
-#ifdef WIN32
+#if defined(_MSC_VER)
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <inaddr.h>

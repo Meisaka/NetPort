@@ -4,6 +4,18 @@
 
 #include <string>
 
+#ifdef NETPORT_SHARED
+	#if defined(_MSC_VER)
+		#define NETPORTEX __declspec(dllexport)
+	#elif defined(__GNUC__) || defined(__clang__)
+		#define NETPORTEX __attribute__((visibility("default")))
+	#else
+		#define NETPORTEX
+	#endif
+#else
+	#define NETPORTEX
+#endif
+
 namespace network {
 	enum ADDRTYPE {
 		NETA_UNDEF= 0,
@@ -22,7 +34,7 @@ namespace network {
 
 	struct net_sockaddr {
 		unsigned short sa_family;
-		char sa_data[14];
+		char sa_data[48];
 	};
 
 	class INetworkStream {
@@ -41,11 +53,18 @@ namespace network {
 		ADDRTYPE af;
 		void Port(unsigned short p);
 		void IP4(const char *);
-		void IP4(unsigned char i1,unsigned char i2,unsigned char i3,unsigned char i4);
+		void IP4(const std::string &);
+		void IP4(const char *, unsigned short p);
+		void IP4(const std::string &, unsigned short p);
+		void IP4(unsigned char i1, unsigned char i2, unsigned char i3, unsigned char i4);
 		void IP4(unsigned long i);
-		void IP6(const char *);
+		//void IP6(const char *);
+		void IP6(const std::string &);
+		//void IP6(const char *, unsigned short p);
+		void IP6(const std::string &, unsigned short p);
 		std::string ToString() const;
 		int Length() const;
 	};
+	typedef struct NetworkAddress Address;
 }
 #endif

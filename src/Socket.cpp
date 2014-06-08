@@ -129,6 +129,22 @@ namespace network {
 		return true;
 	}
 
+	void Socket::set_nonblocking(socket_t handle, bool enable)
+	{
+#ifdef WIN32
+		unsigned long iMode = (enable ? 1 : 0);
+		ioctlsocket(handle, FIONBIO, &iMode);
+#else
+		int flags = fcntl(handle, F_GETFL, 0);
+		if(enable) {
+			flags |= O_NONBLOCK;
+		} else {
+			flags ^= O_NONBLOCK;
+		}
+		fcntl(handle, F_SETFL, flags);
+#endif
+	}
+
 	void Socket::close()
 	{
 		if(!*this) { return; }

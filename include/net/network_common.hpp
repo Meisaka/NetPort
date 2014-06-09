@@ -52,6 +52,8 @@ namespace network {
 	int recv(socket_t handle, char *, int);
 	/* close a native socket handle */
 	void close(socket_t &handle);
+	/* make a native socket blocking/non-blocking */
+	void set_nonblocking(socket_t,bool enable);
 
 	class Socket {
 	public:

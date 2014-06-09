@@ -3,7 +3,7 @@
 #define INCL_NETWORK
 
 #include "network_common.hpp"
-#include "TCPConnection.hpp"
+#include "TCPConnectionTemplates.hpp"
 #include "UDPSocket.hpp"
 
 namespace network {

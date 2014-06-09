@@ -59,6 +59,22 @@ namespace network {
 		return i;
 	}
 
+	void set_nonblocking(socket_t handle, bool enable)
+	{
+#ifdef WIN32
+		unsigned long iMode = (enable ? 1 : 0);
+		ioctlsocket(handle, FIONBIO, &iMode);
+#else
+		int flags = fcntl(handle, F_GETFL, 0);
+		if(enable) {
+			flags |= O_NONBLOCK;
+		} else {
+			flags ^= O_NONBLOCK;
+		}
+		fcntl(handle, F_SETFL, flags);
+#endif
+	}
+
 	NetworkAddress::NetworkAddress()
 	{
 		addr.sa_family = 0;
@@ -326,7 +342,7 @@ namespace network {
 #ifdef WIN32
 		LARGE_INTEGER ticks, freq;
 		unsigned long long leftovers;
-		QueryPerformanceFrequency(&freq); 
+		QueryPerformanceFrequency(&freq);
 		QueryPerformanceCounter(&ticks);
 		rtv.seconds = ticks.QuadPart / freq.QuadPart;
 		leftovers = ticks.QuadPart % freq.QuadPart;

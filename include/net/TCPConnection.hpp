@@ -30,7 +30,7 @@ namespace network {
 		bool init(const NetworkAddress &); // new tcp socket (unbound)
 		bool connect(const NetworkAddress &); // connect, makes new socket if none exists
 		bool listen(const NetworkAddress &, int); // bind and listen
-		
+
 		/* Enable or disable TCP keepalive */
 		bool set_keepalive(bool);
 
@@ -47,7 +47,9 @@ namespace network {
 		bool set_nodelay(bool enable);
 
 		// accepts new connections
-		TCPConnection accept();
+		template<class T>
+		T accept();
+
 		bool select(bool rd, bool wr, bool er) const;
 		bool select(bool rd, bool wr, bool er, long sec, long microsec) const;
 

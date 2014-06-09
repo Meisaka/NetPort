@@ -147,7 +147,7 @@ namespace network {
 		}
 		return false;
 	}
-	
+
 	int TCPConnection::send(const char * buf, int buflen)
 	{
 		int i;
@@ -170,7 +170,7 @@ namespace network {
 		}
 		return i;
 	}
-	
+
 	int TCPConnection::recv(char * buf, int buflen)
 	{
 		int i;
@@ -226,20 +226,6 @@ namespace network {
 			return true;
 		}
 		return false;
-	}
-
-	TCPConnection TCPConnection::accept()
-	{
-		TCPConnection rv;
-		if(this->state != SCS_LISTEN) { return rv; }
-		socket_t h;
-		socklen_t sas = sizeof(sockaddr);
-		address radd;
-		h = ::accept(this->handle, (struct sockaddr*)&radd.addr, &sas);
-		if(h == INVALID_SOCKET) {
-			return rv;
-		}
-		return TCPConnection(h, this->laddr, radd);
 	}
 
 	bool TCPConnection::init(ADDRTYPE afn)

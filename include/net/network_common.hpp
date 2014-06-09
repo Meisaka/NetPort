@@ -52,6 +52,8 @@ namespace network {
 	int recv(socket_t handle, char *, int);
 	/* close a native socket handle */
 	void close(socket_t &handle);
+	/* make a native socket blocking/non-blocking */
+	void set_nonblocking(socket_t,bool enable);
 
 	class Socket {
 	public:
@@ -66,7 +68,6 @@ namespace network {
 		// true if valid socket handle
 		NETPORTEX operator bool() const;
 
-		NETPORTEX static void set_nonblocking(socket_t,bool enable);
 		NETPORTEX bool set_nonblocking(bool enable);
 		NETPORTEX void close();
 		socket_t get_handle() const { return handle; }

@@ -10,6 +10,7 @@ namespace net {
 
 		bool init(ADDRTYPE af);
 		bool bind(NetworkAddress &);
+		bool connect(const NetworkAddress &remote);
 
 		bool is_bound() const;
 

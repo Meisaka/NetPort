@@ -34,6 +34,16 @@ namespace net {
 		bound = true;
 		return true;
 	}
+
+	bool UDPSocket::connect(const NetworkAddress &remote)
+	{
+		if(!handle) { return false; }
+		if(::connect(handle, (struct sockaddr*)&remote.addr, remote.length())) {
+			return false;
+		}
+		return true;
+	}
+
 	bool UDPSocket::is_bound() const {
 		return this->bound;
 	}

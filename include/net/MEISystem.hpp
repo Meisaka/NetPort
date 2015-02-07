@@ -3,7 +3,7 @@
 #include "network_common.hpp"
 #include "UDPSocket.hpp"
 
-namespace network {
+namespace net {
 
 	class MEIEvent {
 	public:

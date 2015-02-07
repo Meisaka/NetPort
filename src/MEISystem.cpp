@@ -12,14 +12,14 @@
 #include <atomic>
 #include <memory>
 
-namespace network {
+namespace net {
 
 	class IMEIControl
 	{
 	public:
 		static unsigned long InitSystem(unsigned long id, ADDRTYPE af);
 		static void DeinitSystem(unsigned long id);
-		static IMEIControl* getInstance();
+		static IMEIControl& instance();
 		~IMEIControl();
 
 		bool LookupSystem(unsigned long id);
@@ -36,13 +36,13 @@ namespace network {
 
 	static std::unique_ptr<IMEIControl> imei;
 
-	IMEIControl* IMEIControl::getInstance()
+	IMEIControl & IMEIControl::instance()
 	{
 		if(imei) {
-			return imei.get();
+			return *imei.get();
 		} else {
-			imei = std::unique_ptr<IMEIControl>(new IMEIControl());
-			return imei.get();
+			imei.reset(new IMEIControl());
+			return *imei.get();
 		}
 	}
 	// receive and process packets (generates receive events)
@@ -106,7 +106,7 @@ namespace network {
 
 	unsigned long IMEIControl::InitSystem(unsigned long id, ADDRTYPE af)
 	{
-		if(IMEIControl::getInstance()->LookupSystem(id)) {
+		if(IMEIControl::instance().LookupSystem(id)) {
 
 		} else {
 		}

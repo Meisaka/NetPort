@@ -1,7 +1,7 @@
 
 #include "net/MEISocket.hpp"
 
-namespace network {
+namespace net {
 	MEISocket::MEISocket()
 	{
 	}

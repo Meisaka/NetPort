@@ -5,12 +5,12 @@
 
 int main(int argc, char *argv[])
 {
-	network::initialize();
+	net::initialize();
 
 	{
-		network::Socket hs = network::Socket(4);
-		network::MEISystem sys;
-		sys.init(network::NETA_IPv4);
+		net::Socket hs = net::Socket(4);
+		net::MEISystem sys;
+		sys.init(net::NETA_IPv4);
 		std::this_thread::sleep_for(std::chrono::seconds(10));
 	}
 

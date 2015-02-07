@@ -2,7 +2,7 @@
 #include "network_os.h"
 #include "net/UDPSocket.hpp"
 
-namespace network {
+namespace net {
 	UDPSocket::UDPSocket()  : bound(false) { }
 	UDPSocket::~UDPSocket() {
 	}

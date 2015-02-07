@@ -6,7 +6,7 @@
 #include "TCPConnection.hpp"
 #include "UDPSocket.hpp"
 
-namespace network {
+namespace net {
 	NETPORTEX void initialize();
 	NETPORTEX int sleep(int msec);
 

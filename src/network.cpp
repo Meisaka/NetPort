@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-namespace network {
+namespace net {
 	static const char* RadixLookup =
 	"0123456789"
 	"abcdefghijklmnopqrstuvwxyz"
@@ -322,7 +322,7 @@ namespace network {
 	#endif
 	}
 
-	void getTime(TimeValue & rtv) {
+	void get_time(TimeValue & rtv) {
 #ifdef WIN32
 		LARGE_INTEGER ticks, freq;
 		unsigned long long leftovers;

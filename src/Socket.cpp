@@ -2,7 +2,7 @@
 #include "net/network.h"
 #include "network_os.h"
 
-namespace network {
+namespace net {
 
 	Socket::Socket()
 	{

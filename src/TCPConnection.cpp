@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-namespace network {
+namespace net {
 	TCPConnection::TCPConnection(void) : bound(false), state(SCS_CLOSED) {}
 
 	TCPConnection::TCPConnection(socket_t hndl, int afn)
@@ -176,7 +176,7 @@ namespace network {
 		int i;
 		if(handle == INVALID_SOCKET) { return -1; }
 		if(state != SCS_CONNECTED) { return -1; }
-		i = network::recv(handle, buf, buflen);
+		i = net::recv(handle, buf, buflen);
 		if(i < 0) {
 			Socket::close();
 		}

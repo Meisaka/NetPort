@@ -2,7 +2,7 @@
 
 #include "network_common.hpp"
 
-namespace network {
+namespace net {
 	class UDPSocket : public Socket {
 	public:
 		UDPSocket();

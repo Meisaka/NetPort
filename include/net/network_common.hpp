@@ -16,7 +16,7 @@
 	#define NETPORTEX
 #endif
 
-namespace network {
+namespace net {
 #ifdef WIN32
 #if defined(_WIN64)
 	typedef unsigned __int64 socket_t;

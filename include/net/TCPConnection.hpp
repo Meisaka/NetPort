@@ -2,7 +2,7 @@
 
 #include "network_common.hpp"
 
-namespace network {
+namespace net {
 	class TCPConnection : public NetworkStream, public Socket {
 	public:
 		TCPConnection(void);

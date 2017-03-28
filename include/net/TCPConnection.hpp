@@ -3,70 +3,89 @@
 #include "network_common.hpp"
 
 namespace net {
-	class TCPConnection : public NetworkStream, public Socket {
-	public:
-		TCPConnection(void);
-		TCPConnection(const TCPConnection&) = delete;
-		TCPConnection & operator=(const TCPConnection&) = delete;
-		TCPConnection(TCPConnection &&);
-		TCPConnection & operator=(TCPConnection &&);
-		~TCPConnection(void);
+class TCPConnection : public NetworkStream, public Socket {
+public:
+	NETPORTEX TCPConnection(void);
+	TCPConnection(const TCPConnection&) = delete;
+	TCPConnection & operator=(const TCPConnection&) = delete;
+	NETPORTEX TCPConnection(TCPConnection &&);
+	NETPORTEX TCPConnection & operator=(TCPConnection &&);
+	NETPORTEX ~TCPConnection(void);
 
-		TCPConnection(socket_t, int); // depricated
-		TCPConnection(socket_t, int, CONNECTIONSTATE); // depricated
+	// depricated
+	NETPORTEX TCPConnection(socket_t, int);
+	// depricated
+	NETPORTEX TCPConnection(socket_t, int, CONNECTIONSTATE);
 
-		TCPConnection(const NetworkAddress &); // new socket with bind
+	// new socket with bind
+	NETPORTEX TCPConnection(const NetworkAddress &);
 
-		// these are more for specialized / internal use
-		// existing bound or listening socket
-		TCPConnection(socket_t, const NetworkAddress &la, bool lsn);
-		// existing connected socket
-		TCPConnection(socket_t, const NetworkAddress &la, const NetworkAddress &ra);
+	// these are more for specialized / internal use
+	// existing bound or listening socket
+	NETPORTEX TCPConnection(socket_t, const NetworkAddress &la, bool lsn);
+	// existing connected socket
+	NETPORTEX TCPConnection(socket_t, const NetworkAddress &la, const NetworkAddress &ra);
 
-		bool init(ADDRTYPE); // new tcp socket (unbound)
-		bool bind(const NetworkAddress &); // bind a socket
-		bool listen(int); // listen on socket
+	// new tcp socket (unbound)
+	NETPORTEX bool init(ADDRTYPE);
 
-		bool init(const NetworkAddress &); // new tcp socket (unbound)
-		bool connect(const NetworkAddress &); // connect, makes new socket if none exists
-		bool listen(const NetworkAddress &, int); // bind and listen
-		
-		/* Enable or disable TCP keepalive */
-		bool set_keepalive(bool);
+	// bind a socket
+	NETPORTEX bool bind(const NetworkAddress &);
 
-		/* Enable or disable TCP keepalives and set options
-		* options:
-		* enable
-		* time - before sending keepalives (seconds)
-		* interval - time between keepalives (seconds)
-		* probes - maximum number of keepalive to send before dropping the connection (Linux specific)
-		*/
-		bool set_keepalive(bool, unsigned long, unsigned long, unsigned long);
+	// listen on socket
+	NETPORTEX bool listen(int);
 
-		// true disables nagle
-		bool set_nodelay(bool enable);
+	// new tcp socket (unbound)
+	NETPORTEX bool init(const NetworkAddress &);
 
-		// accepts new connections
-		TCPConnection accept();
-		bool select(bool rd, bool wr, bool er) const;
-		bool select(bool rd, bool wr, bool er, long sec, long microsec) const;
+	// connect, makes new socket if none exists
+	NETPORTEX bool connect(const NetworkAddress &);
 
-		int send(const char *, int);
-		int send(const std::string &);
-		int recv(char *, int);
-		int recv(std::string &, int);
+	// bind and listen
+	NETPORTEX bool listen(const NetworkAddress &, int);
 
-		bool is_available() const; // true for received data or new incomming connection waiting
-		bool is_connected() const;
-		bool is_listening() const;
+	/* Enable or disable TCP keepalive */
+	NETPORTEX bool set_keepalive(bool);
 
-		// address of remote (connected sockets)
-		const NetworkAddress& remote() const { return raddr; }
-	private:
-		void CheckState();
-		CONNECTIONSTATE state;
-		bool bound;
-		NetworkAddress laddr;
-		NetworkAddress raddr;
-	};
-}
+	/* Enable or disable TCP keepalives and set options
+	* options:
+	* enable
+	* time - before sending keepalives (seconds)
+	* interval - time between keepalives (seconds)
+	* probes - maximum number of keepalive to send before dropping the connection (Linux specific)
+	*/
+	NETPORTEX bool set_keepalive(bool, unsigned long, unsigned long, unsigned long);
+
+	// true disables nagle
+	NETPORTEX bool set_nodelay(bool enable);
+
+	// accepts new connections
+	NETPORTEX TCPConnection accept();
+
+	// test socket for read, write, or error status using select(3)
+	NETPORTEX int select(bool rd, bool wr, bool er) const;
+	// test socket for read, write, or error status with timeout
+	NETPORTEX int select(bool rd, bool wr, bool er, long sec, long microsec) const;
+
+	NETPORTEX int send(const char *, int);
+	NETPORTEX int send(const std::string &);
+	NETPORTEX int recv(char *, int);
+	NETPORTEX int recv(std::string &, int);
+
+	// true for received data or new incomming connection waiting
+	NETPORTEX bool is_available() const;
+
+	NETPORTEX bool is_connected() const;
+	NETPORTEX bool is_listening() const;
+
+	// address of remote (connected sockets)
+	const NetworkAddress& remote() const { return raddr; }
+private:
+	void CheckState();
+	CONNECTIONSTATE state;
+	bool bound;
+	NetworkAddress laddr;
+	NetworkAddress raddr;
+};
+
+} // namespace net

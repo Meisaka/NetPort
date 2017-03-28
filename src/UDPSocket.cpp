@@ -21,13 +21,13 @@ namespace net {
 		return true;
 	}
 
-	bool UDPSocket::bind(NetworkAddress & local) {
+	bool UDPSocket::bind(const NetworkAddress & local) {
 		if(!handle) { return false; }
 		long v = 1;
 		if(setsockopt(handle, SOL_SOCKET, SO_REUSEADDR, (char*)&v, sizeof(long))) {
 			return false;
 		}
-		if(::bind(handle, (struct sockaddr*)&local.addr, local.length())) {
+		if(::bind(handle, (const struct sockaddr*)&local.addr, local.length())) {
 			return false;
 		}
 		laddr = local;

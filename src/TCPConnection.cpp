@@ -127,25 +127,31 @@ namespace net {
 		return true;
 	}
 
-	bool TCPConnection::select(bool rd, bool wr, bool er) const
+	int TCPConnection::select(bool rd, bool wr, bool er) const
 	{
 		if(handle == INVALID_SOCKET) { return false; }
-		fd_set fd;
-		FD_ZERO(&fd);
-		FD_SET(handle, &fd);
+		fd_set fdr;
+		fd_set fdw;
+		fd_set fde;
+		FD_ZERO(&fdr);
+		FD_ZERO(&fdw);
+		FD_ZERO(&fde);
+		FD_SET(handle, &fdr);
+		FD_SET(handle, &fdw);
+		FD_SET(handle, &fde);
 		int i;
 		struct timeval tv;
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 #ifdef WIN32
-		if(i = ::select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(0, (rd ? &fdr : NULL), (wr ? &fdw : NULL), (er ? &fde : NULL), &tv)) {
 #else
-		if(i = ::select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(handle + 1, (rd ? &fdr : NULL), (wr ? &fdw : NULL), (er ? &fde : NULL), &tv)) {
 #endif
-			if(i == -1) { return false; }
-			return true;
+			if(i == -1) { return 0; }
+			return (FD_ISSET(handle, &fdr) ? 1 : 0) | (FD_ISSET(handle, &fdw) ? 2 : 0) | (FD_ISSET(handle, &fde) ? 4 : 0);
 		}
-		return false;
+		return 0;
 	}
 	
 	int TCPConnection::send(const char * buf, int buflen)
@@ -185,12 +191,11 @@ namespace net {
 	int TCPConnection::recv(std::string &s, int buflen)
 	{
 		if(handle == INVALID_SOCKET) { return -1; }
-		char *h = new char[buflen];
-		int i = TCPConnection::recv(h, buflen);
+		s.resize(buflen);
+		int i = TCPConnection::recv((char*)s.data(), buflen);
 		if(i > 0) {
-			s.assign(h, i);
+			s.resize(i);
 		}
-		delete h;
 		return i;
 	}
 
@@ -207,25 +212,31 @@ namespace net {
 	{
 		return (handle != INVALID_SOCKET) && (state == SCS_LISTEN);
 	}
-	bool TCPConnection::select(bool rd, bool wr, bool er, long sec, long microsec) const
+	int TCPConnection::select(bool rd, bool wr, bool er, long sec, long microsec) const
 	{
 		if(handle == INVALID_SOCKET) { return false; }
 		struct timeval tv;
 		tv.tv_sec = sec;
 		tv.tv_usec = microsec;
-		fd_set fd;
-		FD_ZERO(&fd);
-		FD_SET(handle,&fd);
+		fd_set fdr;
+		fd_set fdw;
+		fd_set fde;
+		FD_ZERO(&fdr);
+		FD_ZERO(&fdw);
+		FD_ZERO(&fde);
+		FD_SET(handle, &fdr);
+		FD_SET(handle, &fdw);
+		FD_SET(handle, &fde);
 		int i;
 #ifdef WIN32
-		if(i = ::select(0, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(0, (rd ? &fdr : NULL), (wr ? &fdw : NULL), (er ? &fde : NULL), &tv)) {
 #else
-		if(i = ::select(handle + 1, (rd ? &fd : NULL), (wr ? &fd : NULL), (er ? &fd : NULL), &tv)) {
+		if(i = ::select(handle + 1, (rd ? &fdr : NULL), (wr ? &fdw : NULL), (er ? &fde : NULL), &tv)) {
 #endif
-			if(i == -1) { return false; }
-			return true;
+			if(i == -1) { return 0; }
+			return (FD_ISSET(handle, &fdr) ? 1 : 0) | (FD_ISSET(handle, &fdw) ? 2 : 0) | (FD_ISSET(handle, &fde) ? 4 : 0);
 		}
-		return false;
+		return 0;
 	}
 
 	TCPConnection TCPConnection::accept()
@@ -315,7 +326,7 @@ namespace net {
 
 	bool TCPConnection::listen(const NetworkAddress &local, int queue)
 	{
-		if(handle == INVALID_SOCKET) {
+		if(handle == INVALID_SOCKET || !bound) {
 			if(!bind(local)) {
 				return false;
 			}

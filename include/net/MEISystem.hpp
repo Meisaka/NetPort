@@ -34,7 +34,7 @@ public:
 	NETPORTEX bool listen();
 	NETPORTEX void close();
 
-	NETPORTEX bool MEISystem::connect(const NetworkAddress &, MEISocket &);
+	NETPORTEX bool connect(const NetworkAddress &, MEISocket &);
 
 	NETPORTEX bool is_listening();
 

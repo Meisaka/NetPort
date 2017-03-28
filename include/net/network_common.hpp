@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef NETPORT_SHARED
 	#if defined(_MSC_VER)

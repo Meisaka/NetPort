@@ -75,19 +75,6 @@ struct Packet {
 		mark = nx;
 		if(mark > pksz) pksz = mark;
 	}
-	template<> void insert(PacketParsedHeader const &t) {
-		uint32_t nx;
-		if(!ptr) return;
-		if(ch < mark) complete();
-		nx = mark + sizeof(PacketHeader);
-		if(nx >(sizeof(PacketData) - 4)) return; // epic failure
-		PacketHeader *v = (PacketHeader*)(ptr->data + mark);
-		v->pflags = ((t.code & 0xfff) << 20) | ((t.flags & 0x7f) << 13) | (t.length & 0x1fff);
-		v->session = t.session;
-		v->sequence = t.sequence;
-		mark = nx;
-		if(mark > pksz) pksz = mark;
-	}
 	// read <type> from the current position and move forward.
 	template<class T> T fetch() {
 		uint32_t nx;
@@ -98,39 +85,14 @@ struct Packet {
 		mark = nx;
 		return *v;
 	}
-	template<> PacketParsedHeader fetch() {
-		uint32_t nx;
-		if(!ptr) return {0, };
-		nx = mark + sizeof(PacketHeader);
-		if(nx > pksz) return {0, };
-		PacketHeader *v = (PacketHeader*)(ptr->data + mark);
-		mark = nx;
-		return {
-			v->pflags & 0x1fff,
-			(v->pflags >> 13) & 0x7f,
-			(v->pflags >> 20) & 0xfff,
-			v->session,
-			v->sequence
-		};
-	}
 	template<typename T> Packet& operator<<(T const &v) {
 		insert(v);
 		return *this;
 	}
-	void complete() {
-		if(!ptr) return;
-		if(ch >= mark) return;
-		uint32_t cl = mark - (ch + sizeof(PacketHeader));
-		if(cl > 0x1fff) cl = 0x1fff;
-		PacketHeader *ph = (PacketHeader*)(ptr->data + ch);
-		ph->pflags = (ph->pflags & 0xffffe000u) | (cl);
-		while(mark & 0x3) { ptr->data[mark++] = 0; }
-		*((uint32_t*)(ptr->data + mark)) = 0xff8859ea;
-		mark += sizeof(uint32_t);
-		ch = mark;
-		if(mark > pksz) pksz = mark;
-	}
+	NETPORTEX void complete();
 };
+template<> NETPORTEX void Packet::insert(PacketParsedHeader const &t);
+template<> NETPORTEX PacketParsedHeader Packet::fetch();
 
 class MEISocket
 {

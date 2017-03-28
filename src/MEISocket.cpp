@@ -117,7 +117,7 @@ void IMEITransfer::connect() {
 }
 
 void IMEITransfer::HandleRecv(Packet &pem) {
-	PacketParsedHeader &mh = pem.fetch<PacketParsedHeader>();
+	PacketParsedHeader mh = pem.fetch<PacketParsedHeader>();
 	Packet per;
 	if(MEIF_ISCONTROL(mh.flags)) {
 		fprintf(stderr, "MEIPKT CTRL C=%3x L=%d\n", mh.code, mh.length);
@@ -134,7 +134,7 @@ void IMEITransfer::HandleRecv(Packet &pem) {
 			per.insert<uint32_t>(this->lsess);
 			per.insert<uint32_t>(this->lseqh);
 			per.complete();
-			send(IPacketRef(per, cseqlocal()));
+			{ IPacketRef ipr(per, cseqlocal()); send(ipr); }
 			break;
 		case 0xf02:
 			rseq = mh.sequence;
